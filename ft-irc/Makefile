@@ -1,6 +1,6 @@
 NAME = ircserv
 
-CC = c++
+CXX = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 SRC_DIR := ./srcs
@@ -11,20 +11,20 @@ SRCS := main.cpp
 OBJS := $(addprefix $(BUILD_DIR)/,$(SRCS:%.cpp=%.o))
 SRCS := $(addprefix $(SRC_DIR)/,$(SRCS))
 
-all: $(NAME)
+all: ${NAME}
 
-$(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@
+${NAME}: ${OBJS}
+	${CXX} ${CFLAGS} $^ -o $@
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) $< -c -o $@
+${BUILD_DIR}/%.o: ${SRC_DIR}/%.cpp
+	@mkdir -p ${BUILD_DIR}
+	${CXX} ${CFLAGS} $< -c -o $@
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf ${BUILD_DIR}
 
 fclean: clean
-	$(RM) $(NAME)
+	${RM} ${NAME}
 
 re: fclean all
 
