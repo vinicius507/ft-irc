@@ -32,7 +32,7 @@
   in {
     packages = forEachSystem ({pkgs}: {
       default = self.packages.${pkgs.system}.ircserv;
-      ircserv = import ./nix/pkgs/ircserv {
+      ircserv = import ./nix/pkgs/ircserv.nix {
         inherit (pkgs) lib;
         inherit (pkgs.llvmPackages_12) stdenv libcxxClang;
       };
