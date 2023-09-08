@@ -1,5 +1,5 @@
 # ft-irc
-A simple IRC Server. ~Aka as WhatsApp 2.~
+A simple IRC Server. ~Aka WhatsApp 2.~
 
 ## Authors
 - [Vinicius Oliveira](https://github.com/vinicius507) - vgoncalv
