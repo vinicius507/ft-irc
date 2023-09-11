@@ -4,6 +4,9 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <csignal>
+
+int interrupted = 0; // variavel de controle. Podemos deixar como atributo de alguma classe
 
 void closeAllSockets(struct pollfd *fds, nfds_t n) {
   for (nfds_t i = 0; i < n; i++) {
@@ -14,7 +17,17 @@ void closeAllSockets(struct pollfd *fds, nfds_t n) {
   }
 }
 
+void signalHandler(int signal) {
+	if (signal == SIGINT)
+		interrupted = 1;
+	std::cout << "\033[2K\r";
+}
+
 int main(void) {
+	
+  // manipulando o ^C
+  signal(SIGINT, signalHandler);
+
   // Socket do servidor: usada pra aceitar conexões
   int socketFd = socket(AF_INET, SOCK_STREAM, 0);
   if (socketFd == -1) {
@@ -47,7 +60,7 @@ int main(void) {
   socklen_t addrLen;
   struct sockaddr_in addr;
   std::memset(&addr, 0, sizeof(addr));
-  while (true) {
+  while (!interrupted) {
     int isReady = poll(fds, 10, 1000);
     if (isReady < 0) {
       closeAllSockets(fds, 10);
