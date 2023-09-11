@@ -1,12 +1,12 @@
 NAME = ircserv
 
 CXX = c++
-CFLAGS = -g -Wall -Wextra -Werror -std=c++98
+CFLAGS = -g3 -Wall -Wextra -Werror -std=c++98
 
 SRC_DIR := ./srcs
 BUILD_DIR = ./build
 
-SRCS := main.cpp
+SRCS := main.cpp Server.cpp
 
 OBJS := $(addprefix $(BUILD_DIR)/,$(SRCS:%.cpp=%.o))
 SRCS := $(addprefix $(SRC_DIR)/,$(SRCS))
