@@ -3,6 +3,7 @@
 
 #include <sys/poll.h>
 #include <vector>
+#include <cstdlib>
 
 class Server {
 public:

@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     std::cerr << "Usage: " << argv[0] << " PORT" << std::endl;
     return (1);
   }
-  port = std::stoi(argv[1]);
+  port = std::atoi(argv[1]);
   server = Server(port);
   signal(SIGINT, gracefulShutdown);
   if (!server.run()) {
