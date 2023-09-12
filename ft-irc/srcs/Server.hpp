@@ -2,9 +2,9 @@
 #define SERVER_HPP
 
 #include "ServerSocket.hpp"
+#include <cstdlib>
 #include <sys/poll.h>
 #include <vector>
-#include <cstdlib>
 
 class Server {
 public:

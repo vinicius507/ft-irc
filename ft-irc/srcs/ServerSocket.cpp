@@ -36,9 +36,9 @@ bool ServerSocket::bindAndListen(void) {
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_addr.s_addr = INADDR_ANY;
   serverAddr.sin_port = htons(this->_port);
-  int bindResult = bind(this->_socketFd,
-                        reinterpret_cast<struct sockaddr *>(&serverAddr),
-                        sizeof(serverAddr));
+  int bindResult =
+      bind(this->_socketFd, reinterpret_cast<struct sockaddr *>(&serverAddr),
+           sizeof(serverAddr));
   if (bindResult == -1) {
     std::perror("bind");
     this->closeSocket();
@@ -54,9 +54,7 @@ bool ServerSocket::bindAndListen(void) {
   return (true);
 }
 
-int ServerSocket::getFd(void) const {
-  return (this->_socketFd);
-}
+int ServerSocket::getFd(void) const { return (this->_socketFd); }
 
 int ServerSocket::acceptClient(void) const {
   sockaddr_in clientAddr;
@@ -64,8 +62,8 @@ int ServerSocket::acceptClient(void) const {
 
   std::memset(&clientAddr, 0, addrLen);
   int clientFd =
-      accept(this->_socketFd,
-             reinterpret_cast<struct sockaddr *>(&clientAddr), &addrLen);
+      accept(this->_socketFd, reinterpret_cast<struct sockaddr *>(&clientAddr),
+             &addrLen);
   if (clientFd == -1) {
     std::perror("accept");
   }
