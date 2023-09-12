@@ -6,7 +6,7 @@ CFLAGS = -g3 -Wall -Wextra -Werror -std=c++98
 SRC_DIR := ./srcs
 BUILD_DIR = ./build
 
-SRCS := main.cpp Server.cpp ServerSocket.cpp
+SRCS := main.cpp Server.cpp ServerSocket.cpp PollManager.cpp
 
 OBJS := $(addprefix $(BUILD_DIR)/,$(SRCS:%.cpp=%.o))
 SRCS := $(addprefix $(SRC_DIR)/,$(SRCS))

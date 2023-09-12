@@ -21,56 +21,41 @@ Server::~Server(void) {}
 
 Server &Server::operator=(const Server &other) {
   if (this != &other) {
-    this->_pollFds = std::vector<struct pollfd>(other._pollFds);
+    this->_pollFds = other._pollFds;
     this->_socket = other._socket;
   }
   return (*this);
 }
 
 bool Server::run(void) {
-  struct pollfd pollFd;
+  int fd;
+  std::vector<int> fds;
+  std::vector<int>::const_iterator it;
 
   if (!this->_socket.bindAndListen()) {
     std::cerr << "Error: failed to create server TCP socket." << std::endl;
     return (false);
   }
-  std::memset(&pollFd, 0, sizeof(pollFd));
-  pollFd.fd = this->_socket.getFd();
-  pollFd.events = POLLIN;
-  this->_pollFds.push_back(pollFd);
+  this->_pollFds.addFd(this->_socket.getFd());
   while (!shouldExit) {
-    int isReady = poll(this->_pollFds.data(), this->_pollFds.size(), 1000);
-    if (isReady == -1) {
+    int pollStatus = this->_pollFds.poll();
+    if (pollStatus == PERROR) {
+      std::cerr << "Error: failed to poll TCP sockets." << std::endl;
       return (false);
     }
-    if (isReady == 0) {
+    if (pollStatus == PTIMEOUT) {
       continue;
     }
-    if (this->_pollFds[0].revents & POLLIN) {
-      pollFd.fd = this->_socket.acceptClient();
-      this->_pollFds.push_back(pollFd);
+    if (this->_pollFds.hasNewClientOnQueue()) {
+      fd = this->_socket.acceptClient();
+      this->_pollFds.addFd(fd);
     }
-    std::vector<struct pollfd>::const_iterator it;
-    std::vector<struct pollfd> pollFds(this->_pollFds);
-    for (it = pollFds.cbegin() + 1; it != pollFds.cend(); ++it) {
-      if (it->revents & (POLLIN | POLLHUP)) {
-        this->handleClientData(it->fd);
-      }
+    fds = this->_pollFds.getFdsReadyForReading();
+    for (it = fds.begin(); it != fds.end(); ++it) {
+      this->handleClientData(*it);
     }
   }
   return (true);
-}
-
-void Server::removeClient(int clientFd) {
-  std::vector<struct pollfd>::const_iterator it;
-
-  for (it = this->_pollFds.cbegin(); it != this->_pollFds.cend(); ++it) {
-    if (it->fd == clientFd) {
-      this->_pollFds.erase(it);
-      break;
-    }
-  }
-  close(clientFd);
 }
 
 void Server::handleClientData(int clientFd) {
@@ -80,12 +65,12 @@ void Server::handleClientData(int clientFd) {
   bytesRead = recv(clientFd, buf, sizeof(buf), MSG_DONTWAIT);
   if (bytesRead == -1) {
     std::perror("recv");
-    this->removeClient(clientFd);
+    this->_pollFds.removeFd(clientFd);
     return;
   }
   if (bytesRead == 0) {
     std::cerr << "Client disconnected: " << clientFd << std::endl;
-    this->removeClient(clientFd);
+    this->_pollFds.removeFd(clientFd);
     return;
   }
   std::string msg(buf, buf + bytesRead);

@@ -1,6 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "PollManager.hpp"
 #include "ServerSocket.hpp"
 #include <cstdlib>
 #include <sys/poll.h>
@@ -22,10 +23,8 @@ public:
 
   void handleClientData(int fd);
 
-  void removeClient(int clientFd);
-
 private:
-  std::vector<struct pollfd> _pollFds;
+  PollManager _pollFds;
   ServerSocket _socket;
 };
 
