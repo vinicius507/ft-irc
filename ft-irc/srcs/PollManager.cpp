@@ -23,7 +23,7 @@ void PollManager::disconnectClients(void) {
   if (this->_pollFds.size() <= 1) {
     return;
   }
-  for (it = this->_pollFds.cbegin() + 1; it != this->_pollFds.cend(); ++it) {
+  for (it = this->_pollFds.begin() + 1; it != this->_pollFds.end(); ++it) {
     ::close(it->fd);
   }
 }
@@ -39,7 +39,7 @@ std::vector<int> PollManager::getFdsReadyForReading(void) const {
   if (this->_pollFds.size() <= 1) {
     return (fds);
   }
-  for (it = this->_pollFds.cbegin() + 1; it != this->_pollFds.cend(); ++it) {
+  for (it = this->_pollFds.begin() + 1; it != this->_pollFds.end(); ++it) {
     if (it->revents & (POLLIN | POLLHUP)) {
       fds.push_back(it->fd);
     }
