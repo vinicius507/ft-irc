@@ -1,7 +1,7 @@
 #include "PollManager.hpp"
 #include <cstdio>
-#include <unistd.h>
 #include <cstring>
+#include <unistd.h>
 
 PollManager::PollManager(void) : _pollFds() {}
 

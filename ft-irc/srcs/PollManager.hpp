@@ -1,8 +1,8 @@
 #ifndef POLLMANAGER_HPP
 #define POLLMANAGER_HPP
 
-#include <vector>
 #include <sys/poll.h>
+#include <vector>
 
 enum EPollStatus {
   PERROR = -1,
