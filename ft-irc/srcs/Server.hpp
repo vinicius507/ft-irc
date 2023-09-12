@@ -1,6 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "ServerSocket.hpp"
 #include <sys/poll.h>
 #include <vector>
 #include <cstdlib>
@@ -17,22 +18,15 @@ public:
 
   Server &operator=(const Server &other);
 
-  void close(void);
-
-  bool listen(void);
-
   bool run(void);
-
-  void acceptNewClient(void);
 
   void handleClientData(int fd);
 
   void removeClient(int clientFd);
 
 private:
-  short _port;
-  bool _listening;
   std::vector<struct pollfd> _pollFds;
+  ServerSocket _socket;
 };
 
 #endif
