@@ -18,6 +18,12 @@
       overlays = builtins.attrValues self.overlays;
     };
   in {
+    checks.${system} = {
+      tests = import ./nix/checks/tests.nix {
+        inherit (pkgs) minunit;
+        inherit (pkgs.llvmPackages_12) stdenv libcxxClang;
+      };
+    };
     packages.${system} = {
       default = self.packages.${system}.ircserv;
       ircserv = import ./nix/pkgs/ircserv.nix {
@@ -44,6 +50,7 @@
         clang-tools_12
         gnumake
         llvmPackages_12.libcxxClang
+        minunit
         valgrind
       ];
     };
