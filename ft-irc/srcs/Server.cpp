@@ -4,12 +4,13 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <iterator>
 #include <netinet/in.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
-extern bool shouldExit;
+bool shouldExit = false;
 
 Server::Server(void) : _pollFds(), _socket() {}
 
@@ -40,7 +41,6 @@ bool Server::run(void) {
   while (!shouldExit) {
     int pollStatus = this->_pollFds.poll();
     if (pollStatus == PERROR) {
-      std::cerr << "Error: failed to poll TCP sockets." << std::endl;
       return (false);
     }
     if (pollStatus == PTIMEOUT) {

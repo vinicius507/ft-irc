@@ -6,7 +6,6 @@
 #include <unistd.h>
 
 pid_t serverPid = -1;
-bool shouldExit = false;
 
 void setupServer(void) {
   Server server;

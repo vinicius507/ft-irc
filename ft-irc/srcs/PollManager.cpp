@@ -1,4 +1,5 @@
 #include "PollManager.hpp"
+#include <cerrno>
 #include <cstdio>
 #include <cstring>
 #include <unistd.h>
@@ -52,7 +53,9 @@ int PollManager::poll(void) {
 
   switch (pollStatus) {
   case -1:
-    std::perror("poll");
+    if (errno != EINTR) {
+      std::perror("poll");
+    }
     return (PERROR);
   case 0:
     return (PTIMEOUT);
