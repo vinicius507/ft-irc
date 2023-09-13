@@ -15,7 +15,7 @@
     system = "x86_64-linux";
     pkgs = import nixpkgs {
       inherit system;
-      overlays = [self.overlays.ircserv];
+      overlays = builtins.attrValues self.overlays;
     };
   in {
     packages.${system} = {
@@ -24,11 +24,18 @@
         inherit (pkgs) lib;
         inherit (pkgs.llvmPackages_12) stdenv libcxxClang;
       };
+      minunit = import ./nix/pkgs/minunit.nix {
+        inherit (pkgs) lib fetchFromGitHub;
+        stdenv = pkgs.stdenvNoCC;
+      };
     };
     overlays = {
       default = self.overlays.ircserv;
       ircserv = final: _: {
         ircserv = self.packages.${final.system}.ircserv;
+      };
+      minunit = final: _: {
+        minunit = self.packages.${final.system}.minunit;
       };
     };
     devShells.${system}.default = ft-nix.lib.mkShell {
