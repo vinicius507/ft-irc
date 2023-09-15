@@ -1,4 +1,6 @@
 #include "Server.hpp"
+#include "Message.hpp"
+#include <algorithm>
 #include <arpa/inet.h>
 #include <cstdio>
 #include <iostream>
@@ -55,10 +57,12 @@ bool Server::run(void) {
 }
 
 void Server::handleClientData(int clientFd) {
+  Message msg;
   int bytesRead;
-  char buffer[255] = {0};
+  std::string data;
+  char buf[255] = {0};
 
-  bytesRead = ::recv(clientFd, buffer, sizeof(buffer), MSG_DONTWAIT);
+  bytesRead = ::recv(clientFd, buf, sizeof(buf), MSG_DONTWAIT);
   if (bytesRead == -1) {
     std::perror("recv");
     this->_pollFds.removeFd(clientFd);
@@ -69,9 +73,9 @@ void Server::handleClientData(int clientFd) {
     this->_pollFds.removeFd(clientFd);
     return;
   }
-  std::string msg(buffer, buffer + bytesRead);
-  std::cerr << "Message from client: " << msg << std::endl;
-  ::send(clientFd, "\n", 1, 0);
+  data = std::string(buf, buf + bytesRead);
+  msg = parseIrcMessage(data);
+  send(clientFd, "\n", 1, 0);
 }
 
 void Server::gracefulShutdown(int signal) {
