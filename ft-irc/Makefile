@@ -7,7 +7,8 @@ SRC_DIR := ./srcs
 BUILD_DIR = ./build
 TESTS_DIR = ./tests
 
-SRCS := main.cpp Server.cpp ServerSocket.cpp PollManager.cpp
+SRCS := main.cpp Server.cpp ServerSocket.cpp PollManager.cpp \
+				Client.cpp
 TEST_SRCS := $(filter-out main.cpp,$(SRCS)) test_main.cpp
 
 OBJS := $(addprefix $(BUILD_DIR)/,$(SRCS:%.cpp=%.o))
