@@ -1,79 +1,115 @@
 #include "Server.hpp"
-#include <algorithm>
+
 #include <arpa/inet.h>
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-#include <iterator>
 #include <netinet/in.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
-bool shouldExit = false;
+#include <cstdio>
+#include <iostream>
 
-Server::Server(void) : _pollFds(), _socket() {}
+bool Server::_shouldExit = false;
 
-Server::Server(short port) : _pollFds(), _socket(port) {}
-
-Server::Server(const Server &other) { *this = other; }
-
-Server::~Server(void) {}
-
-Server &Server::operator=(const Server &other) {
-  if (this != &other) {
-    this->_pollFds = other._pollFds;
-    this->_socket = other._socket;
-  }
-  return (*this);
+Server::Server(void) : _pollFds(), _socket()
+{
+    this->mask.sa_handler = Server::gracefulShutdown;
+    sigaction(SIGINT, &this->mask, NULL);
+    sigaction(SIGTERM, &this->mask, NULL);
+    sigaction(SIGTSTP, &this->mask, NULL);
 }
 
-bool Server::run(void) {
-  int fd;
-  std::vector<int> fds;
-  std::vector<int>::const_iterator it;
-
-  if (!this->_socket.bindAndListen()) {
-    std::cerr << "Error: failed to create server TCP socket." << std::endl;
-    return (false);
-  }
-  this->_pollFds.addFd(this->_socket.getFd());
-  while (!shouldExit) {
-    int pollStatus = this->_pollFds.poll();
-    if (pollStatus == PERROR) {
-      return (false);
-    }
-    if (pollStatus == PTIMEOUT) {
-      continue;
-    }
-    if (this->_pollFds.hasNewClientOnQueue()) {
-      fd = this->_socket.acceptClient();
-      this->_pollFds.addFd(fd);
-    }
-    fds = this->_pollFds.getFdsReadyForReading();
-    for (it = fds.begin(); it != fds.end(); ++it) {
-      this->handleClientData(*it);
-    }
-  }
-  return (true);
+Server::Server(short port) : _pollFds(), _socket(port)
+{
+    this->mask.sa_handler = Server::gracefulShutdown;
+    sigaction(SIGINT, &this->mask, NULL);
+    sigaction(SIGTERM, &this->mask, NULL);
+    sigaction(SIGTSTP, &this->mask, NULL);
 }
 
-void Server::handleClientData(int clientFd) {
-  int bytesRead;
-  char buf[255] = {0};
+Server::Server(const Server &other)
+{
+    *this = other;
+}
 
-  bytesRead = recv(clientFd, buf, sizeof(buf), MSG_DONTWAIT);
-  if (bytesRead == -1) {
-    std::perror("recv");
-    this->_pollFds.removeFd(clientFd);
-    return;
-  }
-  if (bytesRead == 0) {
-    std::cerr << "Client disconnected: " << clientFd << std::endl;
-    this->_pollFds.removeFd(clientFd);
-    return;
-  }
-  std::string msg(buf, buf + bytesRead);
-  std::cerr << "Message from client: " << msg << std::endl;
-  send(clientFd, "\n", 1, 0);
+Server::~Server(void)
+{
+}
+
+Server &Server::operator=(const Server &other)
+{
+    if (this != &other)
+    {
+        this->_pollFds = other._pollFds;
+        this->_socket = other._socket;
+    }
+    return (*this);
+}
+
+bool Server::run(void)
+{
+    std::vector<int> arrayOfFds;
+    std::vector<int>::iterator itOfFds;
+
+    if (!this->_socket.bindAndListen())
+    {
+        std::cerr << "Error: failed to create server TCP socket." << std::endl;
+        return (false);
+    }
+    this->_pollFds.addFd(this->_socket.getFd());
+    while (this->_shouldExit != true)
+    {
+        /* sugestão de melhoria:
+		 usar um switch case no lugar do if,
+         para ficar mais legível nesse cas
+         */
+        switch (this->_pollFds.poll())
+        {
+        case PERROR:
+            return (false);
+        case PTIMEOUT:
+            continue;
+        default:
+            break;
+        }
+        if (this->_pollFds.hasNewClientOnQueue())
+        {
+            this->_pollFds.addFd(this->_socket.acceptClient());
+        }
+        arrayOfFds = this->_pollFds.getFdsReadyForReading();
+        for (itOfFds = arrayOfFds.begin(); itOfFds != arrayOfFds.end(); ++itOfFds)
+        {
+            this->handleClientData(*itOfFds);
+        }
+    }
+    return (true);
+}
+
+void Server::handleClientData(int clientFd)
+{
+    int bytesRead;
+    char buffer[255] = {0};
+
+    bytesRead = ::recv(clientFd, buffer, sizeof(buffer), MSG_DONTWAIT);
+    if (bytesRead == -1)
+    {
+        std::perror("recv");
+        this->_pollFds.removeFd(clientFd);
+        return;
+    }
+    if (bytesRead == 0)
+    {
+        std::cerr << "Client disconnected: " << clientFd << std::endl;
+        this->_pollFds.removeFd(clientFd);
+        return;
+    }
+    std::string msg(buffer, buffer + bytesRead);
+    std::cerr << "Message from client: " << msg << std::endl;
+    ::send(clientFd, "\n", 1, 0);
+}
+
+void Server::gracefulShutdown(int signal)
+{
+    Server::_shouldExit = true;
+    std::cerr << "\nReceived signal " << signal << ", shutting down the server." << std::endl;
 }

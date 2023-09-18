@@ -3,29 +3,28 @@
 
 #include "PollManager.hpp"
 #include "ServerSocket.hpp"
+#include <csignal>
 #include <cstdlib>
-#include <sys/poll.h>
-#include <vector>
 
-class Server {
-public:
-  Server(void);
+class Server
+{
+  public:
+    Server(void);
+    Server(short port);
+    Server(const Server &other);
+    ~Server(void);
+    Server &operator=(const Server &other);
 
-  Server(short port);
+    bool run(void);
+    void handleClientData(int fd);
 
-  Server(const Server &other);
+    struct sigaction mask;
+    static void gracefulShutdown(int signal);
+    static bool _shouldExit;
 
-  ~Server(void);
-
-  Server &operator=(const Server &other);
-
-  bool run(void);
-
-  void handleClientData(int fd);
-
-private:
-  PollManager _pollFds;
-  ServerSocket _socket;
+  private:
+    PollManager _pollFds;
+    ServerSocket _socket;
 };
 
 #endif
