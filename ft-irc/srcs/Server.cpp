@@ -1,35 +1,23 @@
 #include "Server.hpp"
-
 #include <arpa/inet.h>
+#include <cstdio>
+#include <iostream>
 #include <netinet/in.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <cstdio>
-#include <iostream>
-
 bool Server::_shouldExit = false;
 
 Server::Server(void) : _pollFds(), _socket()
 {
-    this->mask.sa_handler = Server::gracefulShutdown;
-    sigaction(SIGINT, &this->mask, NULL);
-    sigaction(SIGTERM, &this->mask, NULL);
-    sigaction(SIGTSTP, &this->mask, NULL);
 }
-
 Server::Server(short port) : _pollFds(), _socket(port)
 {
-    this->mask.sa_handler = Server::gracefulShutdown;
-    sigaction(SIGINT, &this->mask, NULL);
-    sigaction(SIGTERM, &this->mask, NULL);
-    sigaction(SIGTSTP, &this->mask, NULL);
 }
 
-Server::Server(const Server &other)
+Server::Server(const Server &other) : _pollFds(other._pollFds), _socket(other._socket)
 {
-    *this = other;
 }
 
 Server::~Server(void)
@@ -59,18 +47,14 @@ bool Server::run(void)
     this->_pollFds.addFd(this->_socket.getFd());
     while (this->_shouldExit != true)
     {
-        /* sugestão de melhoria:
-		 usar um switch case no lugar do if,
-         para ficar mais legível nesse cas
-         */
         switch (this->_pollFds.poll())
         {
-        case PERROR:
-            return (false);
-        case PTIMEOUT:
-            continue;
-        default:
-            break;
+            case PERROR:
+                return (false);
+            case PTIMEOUT:
+                continue;
+            default:
+                break;
         }
         if (this->_pollFds.hasNewClientOnQueue())
         {

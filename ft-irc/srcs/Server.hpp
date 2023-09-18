@@ -3,8 +3,6 @@
 
 #include "PollManager.hpp"
 #include "ServerSocket.hpp"
-#include <csignal>
-#include <cstdlib>
 
 class Server
 {
@@ -18,7 +16,6 @@ class Server
     bool run(void);
     void handleClientData(int fd);
 
-    struct sigaction mask;
     static void gracefulShutdown(int signal);
     static bool _shouldExit;
 
