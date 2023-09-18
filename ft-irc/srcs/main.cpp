@@ -1,29 +1,30 @@
 #include "Server.hpp"
-#include <csignal>
 #include <iostream>
+#include <sstream>
 
-extern bool shouldExit;
+int main(int argc, char **argv)
+{
+    if (argc == 2)
+    {
+        size_t port;
+        std::stringstream ss(argv[1]);
 
-void gracefulShutdown(int signal) {
-  shouldExit = true;
-  std::cerr << std::endl
-            << "Received signal " << signal << ", shutting down the server."
-            << std::endl;
-}
-
-int main(int argc, char **argv) {
-  int port;
-
-  if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " PORT" << std::endl;
-    return (1);
-  }
-  signal(SIGINT, gracefulShutdown);
-  signal(SIGTERM, gracefulShutdown);
-  port = std::atoi(argv[1]);
-  Server server(port);
-  if (!server.run()) {
-    return (1);
-  }
-  return (0);
+        if (!(ss >> port) || port < 1024 || port > 65535)
+        {
+            std::cerr << "Error: invalid port number." << std::endl;
+            return (1);
+        }
+        Server server(port);
+        if (!server.run())
+        {
+            std::cerr << "Error: failed to run server." << std::endl;
+            return (1);
+        }
+    }
+    else
+    {
+        std::cerr << "Usage: " << argv[0] << " PORT" << std::endl;
+        return (1);
+    }
+    return (0);
 }
