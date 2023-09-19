@@ -1,22 +1,19 @@
 #include "Server.hpp"
-#include <algorithm>
 #include <arpa/inet.h>
 #include <cstdio>
-#include <cstring>
 #include <iostream>
-#include <iterator>
 #include <netinet/in.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
-bool shouldExit = false;
+bool Server::_shouldExit = false;
 
 Server::Server(void) : _pollFds(), _socket() {}
-
 Server::Server(short port) : _pollFds(), _socket(port) {}
 
-Server::Server(const Server &other) { *this = other; }
+Server::Server(const Server &other)
+    : _pollFds(other._pollFds), _socket(other._socket) {}
 
 Server::~Server(void) {}
 
@@ -29,30 +26,29 @@ Server &Server::operator=(const Server &other) {
 }
 
 bool Server::run(void) {
-  int fd;
-  std::vector<int> fds;
-  std::vector<int>::const_iterator it;
+  std::vector<int> arrayOfFds;
+  std::vector<int>::iterator itOfFds;
 
   if (!this->_socket.bindAndListen()) {
     std::cerr << "Error: failed to create server TCP socket." << std::endl;
     return (false);
   }
   this->_pollFds.addFd(this->_socket.getFd());
-  while (!shouldExit) {
-    int pollStatus = this->_pollFds.poll();
-    if (pollStatus == PERROR) {
+  while (this->_shouldExit != true) {
+    switch (this->_pollFds.poll()) {
+    case PERROR:
       return (false);
-    }
-    if (pollStatus == PTIMEOUT) {
+    case PTIMEOUT:
       continue;
+    default:
+      break;
     }
     if (this->_pollFds.hasNewClientOnQueue()) {
-      fd = this->_socket.acceptClient();
-      this->_pollFds.addFd(fd);
+      this->_pollFds.addFd(this->_socket.acceptClient());
     }
-    fds = this->_pollFds.getFdsReadyForReading();
-    for (it = fds.begin(); it != fds.end(); ++it) {
-      this->handleClientData(*it);
+    arrayOfFds = this->_pollFds.getFdsReadyForReading();
+    for (itOfFds = arrayOfFds.begin(); itOfFds != arrayOfFds.end(); ++itOfFds) {
+      this->handleClientData(*itOfFds);
     }
   }
   return (true);
@@ -60,9 +56,9 @@ bool Server::run(void) {
 
 void Server::handleClientData(int clientFd) {
   int bytesRead;
-  char buf[255] = {0};
+  char buffer[255] = {0};
 
-  bytesRead = recv(clientFd, buf, sizeof(buf), MSG_DONTWAIT);
+  bytesRead = ::recv(clientFd, buffer, sizeof(buffer), MSG_DONTWAIT);
   if (bytesRead == -1) {
     std::perror("recv");
     this->_pollFds.removeFd(clientFd);
@@ -73,7 +69,13 @@ void Server::handleClientData(int clientFd) {
     this->_pollFds.removeFd(clientFd);
     return;
   }
-  std::string msg(buf, buf + bytesRead);
+  std::string msg(buffer, buffer + bytesRead);
   std::cerr << "Message from client: " << msg << std::endl;
-  send(clientFd, "\n", 1, 0);
+  ::send(clientFd, "\n", 1, 0);
+}
+
+void Server::gracefulShutdown(int signal) {
+  Server::_shouldExit = true;
+  std::cerr << "\nReceived signal " << signal << ", shutting down the server."
+            << std::endl;
 }
