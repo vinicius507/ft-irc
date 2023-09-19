@@ -2,7 +2,7 @@
 #define SERVERSOCKET_HPP
 
 class ServerSocket {
-public:
+  public:
   ServerSocket(void);
 
   ServerSocket(short port);
@@ -21,7 +21,7 @@ public:
 
   void closeSocket(void);
 
-private:
+  private:
   int _socketFd;
   short _port;
 };

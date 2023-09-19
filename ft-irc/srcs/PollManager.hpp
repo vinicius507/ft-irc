@@ -11,7 +11,7 @@ enum EPollStatus {
 };
 
 class PollManager {
-public:
+  public:
   PollManager(void);
 
   PollManager(short port);
@@ -34,7 +34,7 @@ public:
 
   void removeFd(int fd);
 
-private:
+  private:
   std::vector<struct pollfd> _pollFds;
 };
 
