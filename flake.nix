@@ -51,6 +51,7 @@
         gnumake
         llvmPackages_12.libcxxClang
         minunit
+        pre-commit
         valgrind
       ];
     };
