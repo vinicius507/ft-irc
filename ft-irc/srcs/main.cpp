@@ -25,11 +25,6 @@ int main(int argc, char **argv)
             std::cerr << "Error: invalid argument." << std::endl;
             return (1);
         }
-        if (port < 1024 || port > 65535)
-        {
-            std::cerr << "Error: invalid port number." << std::endl;
-            return (1);
-        }
         configureSignalHandlers();
         Server server(port);
         if (server.run() == false)
