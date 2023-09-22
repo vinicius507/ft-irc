@@ -1,23 +1,30 @@
 #include "Client.hpp"
 #include <string>
+#include <unistd.h>
 
-Client::Client(void) : _nickname(), _username() {}
+Client::Client(void) : _fd(-1) {}
 
-Client::Client(const std::string nickname, const std::string username)
-    : _nickname(nickname), _username(username) {}
+Client::Client(int fd) : _fd(fd) {}
 
-Client::Client(const Client &client) { *this = client; }
+Client::Client(const Client &client) : _fd(client._fd) {}
 
 Client &Client::operator=(const Client &client) {
   if (this != &client) {
-    this->_nickname = client._nickname;
-    this->_username = client._username;
+    if (this->_fd != -1) {
+      close(this->_fd);
+    }
+    const_cast<int &>(this->_fd) = client._fd;
   }
   return (*this);
 }
 
-Client::~Client(void) {}
+Client::~Client(void) {
+  if (this->_fd != -1) {
+    close(this->_fd);
+  }
+}
 
-std::string Client::getNickName(void) { return (this->_nickname); }
+int Client::getFd(void) const {
+  return(this->_fd);
+}
 
-std::string Client::getUserName(void) { return (this->_username); }

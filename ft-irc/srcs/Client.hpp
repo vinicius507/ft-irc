@@ -7,7 +7,7 @@ class Client {
 public:
   Client(void);
 
-  Client(const std::string nickname, const std::string username);
+  Client(int fd);
 
   Client(const Client &client);
 
@@ -15,13 +15,10 @@ public:
 
   Client &operator=(const Client &client);
 
-  std::string getNickName(void);
-
-  std::string getUserName(void);
+  int getFd(void) const;
 
 private:
-  std::string _nickname;
-  std::string _username;
+  const int _fd;
 };
 
 #endif
