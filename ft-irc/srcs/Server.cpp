@@ -69,8 +69,8 @@ bool Server::run(void) {
 bool Server::handleClientData(Client &client) {
   Message msg;
   int bytesRead;
-  std::string data;
   char buf[255] = {0};
+  std::string::size_type crlf;
 
   bytesRead = ::recv(client.getFd(), buf, sizeof(buf), MSG_DONTWAIT);
   if (bytesRead == -1) {
@@ -81,9 +81,13 @@ bool Server::handleClientData(Client &client) {
     std::cerr << "Client disconnected: " << client.getFd() << std::endl;
     return (false);
   }
-  data = std::string(buf, buf + bytesRead);
-  msg = parseIrcMessage(data);
-  send(client.getFd(), buf, bytesRead, 0);
+  std::string &clientBuf = client.getBuffer();
+  clientBuf += std::string(buf, buf + bytesRead);
+  crlf = clientBuf.find("\r\n");
+  if (crlf != std::string::npos) {
+    msg = parseIrcMessage(clientBuf.substr(0, crlf - 2));
+    send(client.getFd(), clientBuf.substr(0, crlf - 2).data(), crlf - 2, 0);
+  }
   return (true);
 }
 

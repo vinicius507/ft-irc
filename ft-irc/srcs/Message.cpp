@@ -1,18 +1,28 @@
 #include "Message.hpp"
-#include <iostream>
 #include <cstring>
+#include <iostream>
+#include <sstream>
 
 Message parseIrcMessage(const std::string data) {
   Message msg;
-  std::string comands[2] = {"NICK", "USER"};
+  std::string token;
+  std::stringstream ss(data);
 
-  std::memset(&msg, 0, sizeof(Message));
-  for (int i = 0; i < 2; ++i) {
-    if (!data.compare(0, data.length() - 1, comands[i])) {
-      std::cout << "command: " << comands[i] << std::endl;
-      break;
+  if (data.at(0) == ':') {
+    std::getline(ss, msg.prefix, ss.widen(' '));
+    if (ss.fail()) {
+      std::perror("getline");
+      return (msg);
     }
   }
-  std::cerr << "Message from client: " << data << std::endl;
+  std::getline(ss, msg.command, ss.widen(' '));
+  while (!ss.eof()) {
+    std::getline(ss, token, ss.widen(' '));
+    if (token.at(0) == ':') {
+      msg.trailingParam = token + ss.str();
+      break;
+    }
+    msg.params.push_back(token);
+  }
   return (msg);
 }

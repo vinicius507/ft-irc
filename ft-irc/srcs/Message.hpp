@@ -4,11 +4,12 @@
 #include <string>
 #include <vector>
 
-typedef struct _Message {
+struct Message {
   std::string prefix;
   std::string command;
-  std::vector<std::string> arguments;
-} Message;
+  std::vector<std::string> params;
+  std::string trailingParam;
+};
 
 Message parseIrcMessage(const std::string data);
 

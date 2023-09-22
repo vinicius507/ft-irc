@@ -4,7 +4,7 @@
 #include <string>
 
 class Client {
-public:
+  public:
   Client(void);
 
   Client(int fd);
@@ -17,8 +17,11 @@ public:
 
   int getFd(void) const;
 
-private:
+  std::string &getBuffer(void);
+
+  private:
   const int _fd;
+  std::string _buffer;
 };
 
 #endif

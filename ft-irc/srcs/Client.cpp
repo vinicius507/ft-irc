@@ -24,7 +24,6 @@ Client::~Client(void) {
   }
 }
 
-int Client::getFd(void) const {
-  return(this->_fd);
-}
+int Client::getFd(void) const { return (this->_fd); }
 
+std::string &Client::getBuffer(void) { return (this->_buffer); }
