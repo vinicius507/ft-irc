@@ -28,6 +28,7 @@ Server &Server::operator=(const Server &other) {
 }
 
 bool Server::run(void) {
+  int clientFd;
   std::vector<int> arrayOfFds;
   std::vector<int>::iterator itOfFds;
 
@@ -46,36 +47,44 @@ bool Server::run(void) {
       break;
     }
     if (this->_pollFds.hasNewClientOnQueue()) {
-      this->_pollFds.addFd(this->_socket.acceptClient());
+      clientFd = this->_socket.acceptClient();
+      if (clientFd != -1) {
+        this->_clients.addClient(clientFd);
+        this->_pollFds.addFd(clientFd);
+      } else {
+        std::cerr << "Error: couldn't accept new client" << std::endl;
+      }
     }
     arrayOfFds = this->_pollFds.getFdsReadyForReading();
     for (itOfFds = arrayOfFds.begin(); itOfFds != arrayOfFds.end(); ++itOfFds) {
-      this->handleClientData(*itOfFds);
+      if (!this->handleClientData(this->_clients[*itOfFds])) {
+        this->_clients.disconnectClient(clientFd);
+        this->_pollFds.removeFd(clientFd);
+      }
     }
   }
   return (true);
 }
 
-void Server::handleClientData(int clientFd) {
+bool Server::handleClientData(Client &client) {
   Message msg;
   int bytesRead;
   std::string data;
   char buf[255] = {0};
 
-  bytesRead = ::recv(clientFd, buf, sizeof(buf), MSG_DONTWAIT);
+  bytesRead = ::recv(client.getFd(), buf, sizeof(buf), MSG_DONTWAIT);
   if (bytesRead == -1) {
     std::perror("recv");
-    this->_pollFds.removeFd(clientFd);
-    return;
+    return (false);
   }
   if (bytesRead == 0) {
-    std::cerr << "Client disconnected: " << clientFd << std::endl;
-    this->_pollFds.removeFd(clientFd);
-    return;
+    std::cerr << "Client disconnected: " << client.getFd() << std::endl;
+    return (false);
   }
   data = std::string(buf, buf + bytesRead);
   msg = parseIrcMessage(data);
-  send(clientFd, "\n", 1, 0);
+  send(client.getFd(), buf, bytesRead, 0);
+  return (true);
 }
 
 void Server::gracefulShutdown(int signal) {
