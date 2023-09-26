@@ -85,6 +85,7 @@ void Server::handleClientData(int clientFd) {
       msg = parseIrcMessage(std::string(buf.substr(0, crlf - 2)));
       // handle message
     }
+    break;
   }
 }
 
