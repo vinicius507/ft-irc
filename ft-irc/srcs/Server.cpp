@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <arpa/inet.h>
 #include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <netinet/in.h>
 #include <sys/poll.h>
@@ -57,38 +58,34 @@ bool Server::run(void) {
     }
     arrayOfFds = this->_pollFds.getFdsReadyForReading();
     for (itOfFds = arrayOfFds.begin(); itOfFds != arrayOfFds.end(); ++itOfFds) {
-      if (!this->handleClientData(this->_clients[*itOfFds])) {
-        this->_clients.disconnectClient(clientFd);
-        this->_pollFds.removeFd(clientFd);
-      }
+      this->handleClientData(*itOfFds);
     }
   }
   return (true);
 }
 
-bool Server::handleClientData(Client &client) {
+void Server::handleClientData(int clientFd) {
   Message msg;
-  int bytesRead;
-  char buf[255] = {0};
   std::string::size_type crlf;
+  Client &client = this->_clients[clientFd];
 
-  bytesRead = ::recv(client.getFd(), buf, sizeof(buf), MSG_DONTWAIT);
-  if (bytesRead == -1) {
-    std::perror("recv");
-    return (false);
+  switch (client.read()) {
+  case Client::ReadEof:
+    std::cerr << "Error: couldn't read from client socket: "
+              << std::strerror(errno) << std::endl;
+  case Client::ReadError:
+    std::cerr << "INFO: Client disconnected: " << clientFd << std::endl;
+    this->_pollFds.removeFd(clientFd);
+    this->_clients.disconnectClient(clientFd);
+    break;
+  case Client::ReadIn:
+    std::string &buf = client.getBuffer();
+    crlf = buf.find("\r\n");
+    if (crlf != std::string::npos) {
+      msg = parseIrcMessage(std::string(buf.substr(0, crlf - 2)));
+      // handle message
+    }
   }
-  if (bytesRead == 0) {
-    std::cerr << "Client disconnected: " << client.getFd() << std::endl;
-    return (false);
-  }
-  std::string &clientBuf = client.getBuffer();
-  clientBuf += std::string(buf, buf + bytesRead);
-  crlf = clientBuf.find("\r\n");
-  if (crlf != std::string::npos) {
-    msg = parseIrcMessage(clientBuf.substr(0, crlf - 2));
-    send(client.getFd(), clientBuf.substr(0, crlf - 2).data(), crlf - 2, 0);
-  }
-  return (true);
 }
 
 void Server::gracefulShutdown(int signal) {

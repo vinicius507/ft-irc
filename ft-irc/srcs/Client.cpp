@@ -1,5 +1,6 @@
 #include "Client.hpp"
 #include <string>
+#include <sys/socket.h>
 #include <unistd.h>
 
 Client::Client(void) : _fd(-1) {}
@@ -27,3 +28,18 @@ Client::~Client(void) {
 int Client::getFd(void) const { return (this->_fd); }
 
 std::string &Client::getBuffer(void) { return (this->_buffer); }
+
+Client::ReadEvent Client::read(void) {
+  ssize_t bytesRead;
+  char buf[512] = {0};
+
+  bytesRead = ::recv(this->_fd, buf, sizeof(buf), MSG_DONTWAIT);
+  switch (bytesRead) {
+  case -1:
+    return (Client::ReadError);
+  case 0:
+    return (Client::ReadEof);
+  default:
+    return (Client::ReadIn);
+  }
+}

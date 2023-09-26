@@ -19,6 +19,14 @@ class Client {
 
   std::string &getBuffer(void);
 
+  enum ReadEvent {
+    ReadError = -1,
+    ReadEof,
+    ReadIn,
+  };
+
+  ReadEvent read(void);
+
   private:
   const int _fd;
   std::string _buffer;

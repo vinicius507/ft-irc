@@ -14,7 +14,7 @@ class Server {
   Server &operator=(const Server &other);
 
   bool run(void);
-  bool handleClientData(Client &client);
+  void handleClientData(int clientFd);
 
   static void gracefulShutdown(int signal);
   static bool _shouldExit;
