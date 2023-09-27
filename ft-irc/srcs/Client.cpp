@@ -40,6 +40,7 @@ Client::ReadEvent Client::read(void) {
   case 0:
     return (Client::ReadEof);
   default:
+    this->_buffer += std::string(buf, buf + bytesRead);
     return (Client::ReadIn);
   }
 }
