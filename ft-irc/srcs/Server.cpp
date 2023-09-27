@@ -70,10 +70,10 @@ void Server::handleClientData(int clientFd) {
   Client &client = this->_clients[clientFd];
 
   switch (client.read()) {
-  case Client::ReadEof:
+  case Client::ReadError:
     std::cerr << "Error: couldn't read from client socket: "
               << std::strerror(errno) << std::endl;
-  case Client::ReadError:
+  case Client::ReadEof:
     std::cerr << "INFO: Client disconnected: " << clientFd << std::endl;
     this->_pollFds.removeFd(clientFd);
     this->_clients.disconnectClient(clientFd);
