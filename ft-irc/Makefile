@@ -42,4 +42,7 @@ fclean: clean
 
 re: fclean all
 
+gdb: all
+	gdb --tui --args $(NAME) 4242 
+
 .PHONY: all tests clean fclean re
