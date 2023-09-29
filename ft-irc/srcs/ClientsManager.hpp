@@ -14,17 +14,15 @@ class ClientsManager {
 
   ClientsManager &operator=(const ClientsManager &other);
 
-  // Client &operator[](int clientFd);
+  Client *operator[](int clientFd);
 
-  // const Client &operator[](int clientFd) const;
+  const Client *operator[](int clientFd) const;
 
   void addClient(int clientFd);
 
   void disconnectClient(int clientFd);
 
   void disconnectAllClients(void);
-
-  Client *getClient(int clientFd);
 
   private:
   std::map<int, Client *> _clients;

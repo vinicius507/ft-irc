@@ -68,7 +68,7 @@ bool Server::run(void) {
 void Server::handleClientData(int clientFd) {
   Message msg;
   std::string::size_type crlf;
-  Client *client = this->_clients.getClient(clientFd);
+  Client *client = this->_clients[clientFd];
 
   switch (client->read()) {
   case Client::ReadError:
