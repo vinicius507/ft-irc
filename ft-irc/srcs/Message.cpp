@@ -1,4 +1,6 @@
 #include "Message.hpp"
+#include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -10,6 +12,7 @@ Message parseIrcMessage(const std::string data) {
 
   if (data.at(0) == ':') {
     std::getline(ss, msg.prefix, ss.widen(' '));
+    std::cout << "\n-prefix-\n";
     if (ss.fail()) {
       std::perror("getline");
       return (msg);

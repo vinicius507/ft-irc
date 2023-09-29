@@ -2,6 +2,7 @@
 #include "Message.hpp"
 #include <algorithm>
 #include <arpa/inet.h>
+#include <cerrno>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -67,20 +68,21 @@ bool Server::run(void) {
 void Server::handleClientData(int clientFd) {
   Message msg;
   std::string::size_type crlf;
-  Client &client = this->_clients[clientFd];
+  Client *client = this->_clients.getClient(clientFd);
 
-  switch (client.read()) {
+  switch (client->read()) {
   case Client::ReadError:
     std::cerr << "Error: couldn't read from client socket: "
               << std::strerror(errno) << std::endl;
+    // Intentional fallthrough
   case Client::ReadEof:
     std::cerr << "INFO: Client disconnected: " << clientFd << std::endl;
     this->_pollFds.removeFd(clientFd);
     this->_clients.disconnectClient(clientFd);
     break;
   case Client::ReadIn:
-    std::string &buf = client.getBuffer();
-    crlf = buf.find("\r\n");
+    std::string &buf = client->getBuffer();
+    crlf = buf.find("\\r\\n"); // replace \\r\\n to \r\n
     if (crlf != std::string::npos) {
       msg = parseIrcMessage(std::string(buf.substr(0, crlf - 2)));
       // handle message

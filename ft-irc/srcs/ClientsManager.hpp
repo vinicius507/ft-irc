@@ -5,27 +5,29 @@
 #include <map>
 
 class ClientsManager {
-    public:
-    ClientsManager(void);
+  public:
+  ClientsManager(void);
 
-    ClientsManager(const ClientsManager &other);
+  ClientsManager(const ClientsManager &other);
 
-    ~ClientsManager(void);
+  ~ClientsManager(void);
 
-    ClientsManager &operator=(const ClientsManager &other);
+  ClientsManager &operator=(const ClientsManager &other);
 
-    Client &operator[](int clientFd);
+  // Client &operator[](int clientFd);
 
-    const Client &operator[](int clientFd) const;
+  // const Client &operator[](int clientFd) const;
 
-    void addClient(int clientFd);
+  void addClient(int clientFd);
 
-    void disconnectClient(int clientFd);
+  void disconnectClient(int clientFd);
 
-    void disconnectAllClients(void);
+  void disconnectAllClients(void);
 
-    private:
-    std::map<int, Client> _clients;
+  Client *getClient(int clientFd);
+
+  private:
+  std::map<int, Client *> _clients;
 };
 
 #endif
