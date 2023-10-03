@@ -13,9 +13,11 @@ static std::string parseToken(const std::string data, std::size_t &start) {
 
   end = data.find(' ', start);
   if (end == std::string::npos) {
-    throw std::runtime_error("Malformed message: Missing required token: ' '");
+    token = data.substr(start);
+    start = std::string::npos;
+    return (token);
   }
-  token = data.substr(start, end);
+  token = data.substr(start, end - start);
   start = end + 1;
   return (token);
 }

@@ -43,6 +43,9 @@ fclean: clean
 re: fclean all
 
 gdb: all
-	gdb --tui --args $(NAME) 4242 
+	gdb --tui --args $(NAME) 6667
+
+tgdb: tests
+	gdb --tui run_tests
 
 .PHONY: all tests clean fclean re
