@@ -1,3 +1,4 @@
+#include "../srcs/Message.hpp"
 #include "../srcs/Server.hpp"
 #include <cstdlib>
 #include <iostream>
@@ -24,11 +25,25 @@ void teardownServer(void) {
   }
 }
 
+MU_TEST(parse_empty_message) {
+  Message msg;
+
+  msg = parseIrcMessage(std::string());
+
+  mu_check(msg.prefix.data() == std::string());
+  mu_check(msg.command.data() == std::string());
+  mu_check(msg.params == std::vector<std::string>());
+  mu_check(msg.trailingParam.data() == std::string());
+}
+
+MU_TEST_SUITE(unit_tests) { MU_RUN_TEST(parse_empty_message); }
+
 MU_TEST_SUITE(integration_tests) {
   MU_SUITE_CONFIGURE(setupServer, teardownServer);
 }
 
 int main(void) {
+  MU_RUN_SUITE(unit_tests);
   MU_RUN_SUITE(integration_tests);
   MU_REPORT();
   return (MU_EXIT_CODE);

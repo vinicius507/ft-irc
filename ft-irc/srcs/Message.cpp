@@ -1,31 +1,44 @@
 #include "Message.hpp"
 #include <cerrno>
+#include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
+
+static std::string parseToken(const std::string data, std::size_t &start) {
+  std::size_t end;
+  std::string token;
+
+  end = data.find(' ', start);
+  if (end == std::string::npos) {
+    throw std::runtime_error("Malformed message: Missing required token: ' '");
+  }
+  token = data.substr(start, end);
+  start = end + 1;
+  return (token);
+}
 
 Message parseIrcMessage(const std::string data) {
   Message msg;
+  std::size_t start;
   std::string token;
-  std::stringstream ss(data);
 
-  if (data.at(0) == ':') {
-    std::getline(ss, msg.prefix, ss.widen(' '));
-    std::cout << "\n-prefix-\n";
-    if (ss.fail()) {
-      std::perror("getline");
-      return (msg);
-    }
+  if (data.empty()) {
+    return (msg);
   }
-  std::getline(ss, msg.command, ss.widen(' '));
-  while (!ss.eof()) {
-    std::getline(ss, token, ss.widen(' '));
-    if (token.at(0) == ':') {
-      msg.trailingParam = token + ss.str();
+  start = 0;
+  if (data.at(0) == ':') {
+    msg.prefix = parseToken(data, start);
+  }
+  msg.command = parseToken(data, start);
+  while (start < data.length()) {
+    if (data.at(start) == ':') {
+      msg.trailingParam = data.substr(start);
       break;
     }
-    msg.params.push_back(token);
+    msg.params.push_back(parseToken(data, start));
   }
   return (msg);
 }

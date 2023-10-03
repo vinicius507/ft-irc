@@ -82,10 +82,16 @@ void Server::handleClientData(int clientFd) {
     break;
   case Client::ReadIn:
     std::string &buf = client->getBuffer();
-    crlf = buf.find("\\r\\n"); // replace \\r\\n to \r\n
+    crlf = buf.find(CRLF);
     if (crlf != std::string::npos) {
-      msg = parseIrcMessage(std::string(buf.substr(0, crlf - 2)));
-      // handle message
+      try {
+        msg = parseIrcMessage(std::string(buf.substr(0, crlf)));
+        // handle message
+      } catch (std::exception &e) {
+        std::cerr << "Error: couldn't parse client message: " << e.what()
+                  << std::endl;
+      }
+      buf.erase(0, crlf + CRLF.length());
     }
     break;
   }
