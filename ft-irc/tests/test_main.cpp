@@ -1,6 +1,7 @@
 #include "../srcs/Message.hpp"
 #include "../srcs/Server.hpp"
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <minunit.h>
 #include <signal.h>
@@ -42,15 +43,27 @@ MU_TEST(parse_simple_message) {
 
   msg = parseIrcMessage(
       ":lucas@capDoMato@host PRIVMSG #canal1 :eae, menor menor!");
-  mu_check(msg.prefix.data() == std::string(":lucas@capDoMato@host"));
-  mu_check(msg.command.data() == std::string("PRIVMSG"));
-  mu_check(msg.params[0].data() == std::string("#canal1"));
+  mu_check(msg.prefix.data() == std::string(":lucas@capDoMato@host "));
+  mu_check(msg.command.data() == std::string("PRIVMSG "));
+  mu_check(msg.params[0].data() == std::string("#canal1 "));
   mu_check(msg.trailingParam.data() == std::string(":eae, menor menor!"));
+}
+
+MU_TEST(parse_message_without_space) {
+  Message msg;
+
+  try {
+    msg =
+        parseIrcMessage(":lucas@capDoMato@hostPRIVMSG#canal1:eae,menormenor!");
+  } catch (std::exception &e) {
+    std::cerr << "Error: without space " << e.what() << std::endl;
+  }
 }
 
 MU_TEST_SUITE(unit_tests) {
   MU_RUN_TEST(parse_empty_message);
   MU_RUN_TEST(parse_simple_message);
+  MU_RUN_TEST(parse_message_without_space);
 }
 
 MU_TEST_SUITE(integration_tests) {

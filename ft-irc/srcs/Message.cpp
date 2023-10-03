@@ -17,9 +17,17 @@ static std::string parseToken(const std::string data, std::size_t &start) {
     start = std::string::npos;
     return (token);
   }
-  token = data.substr(start, end - start);
+  token = data.substr(start, (end + 1) - start);
   start = end + 1;
   return (token);
+}
+
+int isValidPrefix(std::string prefix) {
+  std::size_t space = prefix.find(' ', 0);
+  if (space == std::string::npos) {
+    return (0);
+  }
+  return (1);
 }
 
 Message parseIrcMessage(const std::string data) {
@@ -33,6 +41,9 @@ Message parseIrcMessage(const std::string data) {
   start = 0;
   if (data.at(0) == ':') {
     msg.prefix = parseToken(data, start);
+    if (!isValidPrefix(msg.prefix)) {
+      throw std::runtime_error("Not-Formated: prefix");
+    }
   }
   msg.command = parseToken(data, start);
   while (start < data.length()) {
