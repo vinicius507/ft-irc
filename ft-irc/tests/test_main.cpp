@@ -68,10 +68,89 @@ MU_TEST(parse_message_without_space) {
   }
 }
 
+MU_TEST(parse_prefix_only_user) {
+  Message msg;
+  std::string prefix = "lucas";
+  std::string command = "PRIVMSG";
+  std::vector<std::string> params;
+  params.push_back("#canal1");
+  std::string trailingParam = "eae, menor menor!";
+  std::string message = ":lucas PRIVMSG #canal1 :eae, menor menor!";
+
+  msg = parseIrcMessage(message);
+
+  mu_assert_string_eq(msg.prefix.c_str(), prefix.c_str());
+  mu_assert_string_eq(msg.command.c_str(), command.c_str());
+  mu_assert_string_eq(msg.params.at(0).c_str(), params.at(0).c_str());
+  mu_assert_string_eq(msg.trailingParam.c_str(), trailingParam.c_str());
+}
+
+MU_TEST(parse_check_command) {
+  Message msg;
+
+  try {
+    msg = parseIrcMessage(":vini RIVMSg #canal1 :eae, menor menor!");
+    mu_assert(false, "Should throw std::invalid_argument");
+  } catch (std::invalid_argument &e) {
+    mu_check(true);
+  }
+}
+
+MU_TEST(parse_check_command_2) {
+  Message msg;
+
+  try {
+    msg = parseIrcMessage(":vini PRIVMS1 #canal1 :eae, menor menor!");
+    mu_assert(false, "Should throw std::invalid_argument");
+  } catch (std::invalid_argument &e) {
+    mu_check(true);
+  }
+}
+
+MU_TEST(parse_check_command_3) {
+  Message msg;
+
+  try {
+    msg =
+        parseIrcMessage(":meritissimo1!m1 0RIVMSG #canal1 :eae, menor menor!");
+    mu_assert(false, "Should throw std::invalid_argument");
+  } catch (std::invalid_argument &e) {
+    mu_check(true);
+  }
+}
+
+MU_TEST(parse_check_command_4) {
+  Message msg;
+
+  try {
+    msg = parseIrcMessage(":meritissimo1!m1 PRIVMSG#canal1:eae,menormenor!");
+    mu_assert(false, "Should throw std::invalid_argument");
+  } catch (std::invalid_argument &e) {
+    mu_check(true);
+  }
+}
+
+MU_TEST(parse_check_param) {
+  Message msg;
+
+  try {
+    msg = parseIrcMessage("PRIVMSG canal1 :eae, menor menor!");
+    mu_assert(false, "Missing '#' before the channel");
+  } catch (std::invalid_argument &e) {
+    mu_check(true);
+  }
+}
+
 MU_TEST_SUITE(unit_tests) {
   MU_RUN_TEST(parse_empty_message);
   MU_RUN_TEST(parse_simple_message);
   MU_RUN_TEST(parse_message_without_space);
+  MU_RUN_TEST(parse_prefix_only_user);
+  MU_RUN_TEST(parse_check_command);
+  MU_RUN_TEST(parse_check_command_2);
+  MU_RUN_TEST(parse_check_command_3);
+  MU_RUN_TEST(parse_check_command_4);
+  MU_RUN_TEST(parse_check_param);
 }
 
 MU_TEST_SUITE(integration_tests) {
