@@ -40,13 +40,20 @@ MU_TEST(parse_empty_message) {
 
 MU_TEST(parse_simple_message) {
   Message msg;
+  std::string prefix = "lucas@capDoMato@host";
+  std::string command = "PRIVMSG";
+  std::vector<std::string> params;
+  params.push_back("#canal1");
+  std::string trailingParam = "eae, menor menor!";
+  std::string message =
+      ":lucas@capDoMato@host PRIVMSG #canal1 :eae, menor menor!";
 
-  msg = parseIrcMessage(
-      ":lucas@capDoMato@host PRIVMSG #canal1 :eae, menor menor!");
-  mu_check(msg.prefix.data() == std::string(":lucas@capDoMato@host "));
-  mu_check(msg.command.data() == std::string("PRIVMSG "));
-  mu_check(msg.params[0].data() == std::string("#canal1 "));
-  mu_check(msg.trailingParam.data() == std::string(":eae, menor menor!"));
+  msg = parseIrcMessage(message);
+
+  mu_assert_string_eq(msg.prefix.c_str(), prefix.c_str());
+  mu_assert_string_eq(msg.command.c_str(), command.c_str());
+  mu_assert_string_eq(msg.params.at(0).c_str(), params.at(0).c_str());
+  mu_assert_string_eq(msg.trailingParam.c_str(), trailingParam.c_str());
 }
 
 MU_TEST(parse_message_without_space) {
@@ -55,8 +62,9 @@ MU_TEST(parse_message_without_space) {
   try {
     msg =
         parseIrcMessage(":lucas@capDoMato@hostPRIVMSG#canal1:eae,menormenor!");
-  } catch (std::exception &e) {
-    std::cerr << "Error: without space " << e.what() << std::endl;
+    mu_assert(false, "Should throw std::invalid_argument");
+  } catch (std::invalid_argument &e) {
+    mu_check(true);
   }
 }
 

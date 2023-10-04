@@ -7,51 +7,56 @@
 #include <sstream>
 #include <stdexcept>
 
-static std::string parseToken(const std::string data, std::size_t &start) {
-  std::size_t end;
+static std::string parseToken(std::istringstream &iss) {
   std::string token;
 
-  end = data.find(' ', start);
-  if (end == std::string::npos) {
-    token = data.substr(start);
-    start = std::string::npos;
-    return (token);
+  std::getline(iss, token, iss.widen(' '));
+  if (iss.fail()) {
+    throw std::runtime_error("Failed to parse token");
   }
-  token = data.substr(start, (end + 1) - start);
-  start = end + 1;
   return (token);
 }
 
-int isValidPrefix(std::string prefix) {
-  std::size_t space = prefix.find(' ', 0);
-  if (space == std::string::npos) {
-    return (0);
+bool isValidPrefix(std::string prefix) { return (!prefix.empty()); }
+
+static std::string parsePrefix(std::istringstream &iss) {
+  std::string prefix;
+
+  prefix = parseToken(iss);
+  if (iss.eof()) {
+    throw std::invalid_argument("No space after prefix");
   }
-  return (1);
+  if (!isValidPrefix(prefix)) {
+    throw std::invalid_argument("Invalid prefix");
+  }
+  return (prefix.substr(1));
 }
 
 Message parseIrcMessage(const std::string data) {
   Message msg;
-  std::size_t start;
-  std::string token;
+  std::istringstream iss;
 
   if (data.empty()) {
     return (msg);
   }
-  start = 0;
+  iss.str(data);
+  std::cerr << "Msg: '" << data << "'" << std::endl;
   if (data.at(0) == ':') {
-    msg.prefix = parseToken(data, start);
-    if (!isValidPrefix(msg.prefix)) {
-      throw std::runtime_error("Not-Formated: prefix");
-    }
+    msg.prefix = parsePrefix(iss);
+    std::cerr << "Prefix: '" << msg.prefix << "'" << std::endl;
   }
-  msg.command = parseToken(data, start);
-  while (start < data.length()) {
-    if (data.at(start) == ':') {
-      msg.trailingParam = data.substr(start);
+  msg.command = parseToken(iss);
+  std::cerr << "Command: '" << msg.command << "'" << std::endl;
+  while (!iss.eof()) {
+    if (iss.peek() == ':') {
+      iss.ignore(1);
+      msg.trailingParam =
+          iss.str().substr(iss.tellg()); // Read the rest of the string buffer
+      std::cerr << "Trailing param: '" << msg.trailingParam << "'" << std::endl;
       break;
     }
-    msg.params.push_back(parseToken(data, start));
+    msg.params.push_back(parseToken(iss));
+    std::cerr << "Param: '" << msg.params.back() << "'" << std::endl;
   }
   return (msg);
 }
