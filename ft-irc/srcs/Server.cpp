@@ -87,8 +87,11 @@ void Server::handleClientData(int clientFd) {
       try {
         msg = parseIrcMessage(std::string(buf.substr(0, crlf)));
         // handle message
+      } catch (std::invalid_argument &e) {
+        std::cerr << "Debug: Ignoring malformed message: " << e.what()
+                  << std::endl;
       } catch (std::exception &e) {
-        std::cerr << "Error: couldn't parse client message: " << e.what()
+        std::cerr << "Error: Could not parse message: " << e.what()
                   << std::endl;
       }
       buf.erase(0, crlf + CRLF.length());
