@@ -85,7 +85,7 @@ MU_TEST(parse_prefix_only_user) {
   mu_assert_string_eq(msg.trailingParam.c_str(), trailingParam.c_str());
 }
 
-MU_TEST(parse_check_command) {
+MU_TEST(parse_command_with_lower_letter) {
   Message msg;
 
   try {
@@ -96,7 +96,7 @@ MU_TEST(parse_check_command) {
   }
 }
 
-MU_TEST(parse_check_command_2) {
+MU_TEST(parse_command_with_number) {
   Message msg;
 
   try {
@@ -107,7 +107,7 @@ MU_TEST(parse_check_command_2) {
   }
 }
 
-MU_TEST(parse_check_command_3) {
+MU_TEST(parse_command_with_number_2) {
   Message msg;
 
   try {
@@ -119,7 +119,7 @@ MU_TEST(parse_check_command_3) {
   }
 }
 
-MU_TEST(parse_check_command_4) {
+MU_TEST(parse_command_without_space) {
   Message msg;
 
   try {
@@ -130,7 +130,7 @@ MU_TEST(parse_check_command_4) {
   }
 }
 
-MU_TEST(parse_check_param) {
+MU_TEST(parse_param_without_hashtag) {
   Message msg;
 
   try {
@@ -141,16 +141,28 @@ MU_TEST(parse_check_param) {
   }
 }
 
+MU_TEST(parse_param_without_space) {
+  Message msg;
+
+  try {
+    msg = parseIrcMessage("PRIVMSG #canal1:eae, menor menor!");
+    mu_assert(false, "Missing <space> before the channel");
+  } catch (std::invalid_argument &e) {
+    mu_check(true);
+  }
+}
+
 MU_TEST_SUITE(unit_tests) {
   MU_RUN_TEST(parse_empty_message);
   MU_RUN_TEST(parse_simple_message);
   MU_RUN_TEST(parse_message_without_space);
   MU_RUN_TEST(parse_prefix_only_user);
-  MU_RUN_TEST(parse_check_command);
-  MU_RUN_TEST(parse_check_command_2);
-  MU_RUN_TEST(parse_check_command_3);
-  MU_RUN_TEST(parse_check_command_4);
-  MU_RUN_TEST(parse_check_param);
+  MU_RUN_TEST(parse_command_with_lower_letter);
+  MU_RUN_TEST(parse_command_with_number);
+  MU_RUN_TEST(parse_command_with_number_2);
+  MU_RUN_TEST(parse_command_without_space);
+  MU_RUN_TEST(parse_param_without_space);
+  MU_RUN_TEST(parse_param_without_hashtag);
 }
 
 MU_TEST_SUITE(integration_tests) {

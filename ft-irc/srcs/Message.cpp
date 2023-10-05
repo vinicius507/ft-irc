@@ -58,7 +58,7 @@ bool isValidCommand(std::string command) {
 }
 
 bool isValidParam(std::string param) {
-  if (param.at(0) != '#') {
+  if (param.at(0) != '#' || param.find(':') != std::string::npos) {
     return (false);
   }
   return (true);
