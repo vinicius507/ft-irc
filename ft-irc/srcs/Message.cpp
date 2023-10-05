@@ -39,20 +39,13 @@ static std::string parsePrefix(std::istringstream &iss) {
   return (prefix.substr(1));
 }
 
-bool checkCommand(std::string cmd) {
-  size_t i;
+bool isValidCommand(std::string command) {
+  std::string::iterator it;
 
-  for (i = 0; i < cmd.length(); i++) {
-    if (!isalpha(cmd[i])) {
+  for (it = command.begin(); it != command.end(); ++it) {
+    if (!std::isalpha(*it)) {
       return (false);
     }
-  }
-  return (true);
-}
-
-bool isValidCommand(std::string command) {
-  if (!checkCommand(command)) {
-    return (false);
   }
   return (true);
 }
