@@ -34,8 +34,7 @@ MU_TEST(parse_valid_message) {
   std::vector<std::string> params;
   params.push_back("#canal1");
   std::string trailingParam = "eae, menor menor!";
-  std::string message =
-      ":lucas@capDoMato@host PRIVMSG #canal1 :eae, menor menor!";
+  std::string message = ":lucas@capDoMato@host PRIVMSG #canal1 :eae, menor menor!";
 
   msg = parseIrcMessage(message);
 
@@ -131,9 +130,7 @@ MU_TEST_SUITE(unit_tests) {
   MU_RUN_TEST(parse_command_without_space);
 }
 
-MU_TEST_SUITE(integration_tests) {
-  MU_SUITE_CONFIGURE(setupServer, teardownServer);
-}
+MU_TEST_SUITE(integration_tests) { MU_SUITE_CONFIGURE(setupServer, teardownServer); }
 
 int main(void) {
   MU_RUN_SUITE(unit_tests);

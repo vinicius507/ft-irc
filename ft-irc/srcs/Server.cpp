@@ -16,8 +16,7 @@ bool Server::_shouldExit = false;
 Server::Server(void) : _pollFds(), _socket() {}
 Server::Server(short port) : _pollFds(), _socket(port) {}
 
-Server::Server(const Server &other)
-    : _pollFds(other._pollFds), _socket(other._socket) {}
+Server::Server(const Server &other) : _pollFds(other._pollFds), _socket(other._socket) {}
 
 Server::~Server(void) {}
 
@@ -72,8 +71,7 @@ void Server::handleClientData(int clientFd) {
 
   switch (client->read()) {
   case Client::ReadError:
-    std::cerr << "Error: couldn't read from client socket: "
-              << std::strerror(errno) << std::endl;
+    std::cerr << "Error: couldn't read from client socket: " << std::strerror(errno) << std::endl;
     // Intentional fallthrough
   case Client::ReadEof:
     std::cerr << "INFO: Client disconnected: " << clientFd << std::endl;
@@ -88,11 +86,9 @@ void Server::handleClientData(int clientFd) {
         msg = parseIrcMessage(std::string(buf.substr(0, crlf)));
         // handle message
       } catch (std::invalid_argument &e) {
-        std::cerr << "Debug: Ignoring malformed message: " << e.what()
-                  << std::endl;
+        std::cerr << "Debug: Ignoring malformed message: " << e.what() << std::endl;
       } catch (std::exception &e) {
-        std::cerr << "Error: Could not parse message: " << e.what()
-                  << std::endl;
+        std::cerr << "Error: Could not parse message: " << e.what() << std::endl;
       }
       buf.erase(0, crlf + CRLF.length());
     }
@@ -102,6 +98,5 @@ void Server::handleClientData(int clientFd) {
 
 void Server::gracefulShutdown(int signal) {
   Server::_shouldExit = true;
-  std::cerr << "\nReceived signal " << signal << ", shutting down the server."
-            << std::endl;
+  std::cerr << "\nReceived signal " << signal << ", shutting down the server." << std::endl;
 }

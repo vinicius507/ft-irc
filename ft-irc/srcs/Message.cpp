@@ -78,8 +78,7 @@ Message parseIrcMessage(const std::string data) {
   while (!iss.eof()) {
     if (iss.peek() == ':') {
       iss.ignore(1);
-      msg.trailingParam =
-          iss.str().substr(iss.tellg()); // Read the rest of the string buffer
+      msg.trailingParam = iss.str().substr(iss.tellg()); // Read the rest of the string buffer
       break;
     }
     msg.params.push_back(parseToken(iss));
