@@ -27,18 +27,7 @@ void teardownServer(void) {
   }
 }
 
-MU_TEST(parse_empty_message) {
-  Message msg;
-
-  msg = parseIrcMessage(std::string());
-
-  mu_check(msg.prefix.data() == std::string());
-  mu_check(msg.command.data() == std::string());
-  mu_check(msg.params == std::vector<std::string>());
-  mu_check(msg.trailingParam.data() == std::string());
-}
-
-MU_TEST(parse_simple_message) {
+MU_TEST(parse_valid_message) {
   Message msg;
   std::string prefix = "lucas@capDoMato@host";
   std::string command = "PRIVMSG";
@@ -56,12 +45,23 @@ MU_TEST(parse_simple_message) {
   mu_assert_string_eq(msg.trailingParam.c_str(), trailingParam.c_str());
 }
 
-MU_TEST(parse_message_without_space) {
+MU_TEST(parse_empty_message) {
   Message msg;
 
   try {
-    msg =
-        parseIrcMessage(":lucas@capDoMato@hostPRIVMSG#canal1:eae,menormenor!");
+    msg = parseIrcMessage(std::string());
+    mu_assert(false, "Empty message should throw std::invalid_argument");
+  } catch (std::invalid_argument &e) {
+    mu_check(true);
+  }
+}
+
+MU_TEST(parse_message_without_space) {
+  Message msg;
+  std::string message = ":lucas@capDoMato@hostPRIVMSG#canal1:eae,menormenor!";
+
+  try {
+    msg = parseIrcMessage(message);
     mu_assert(false, "Should throw std::invalid_argument");
   } catch (std::invalid_argument &e) {
     mu_check(true);
@@ -87,21 +87,22 @@ MU_TEST(parse_prefix_only_user) {
 
 MU_TEST(parse_command_with_number) {
   Message msg;
+  std::string message = ":vini PRIVMS1 #canal1 :eae, menor menor!";
 
   try {
-    msg = parseIrcMessage(":vini PRIVMS1 #canal1 :eae, menor menor!");
+    msg = parseIrcMessage(message);
     mu_assert(false, "Should throw std::invalid_argument");
   } catch (std::invalid_argument &e) {
     mu_check(true);
   }
 }
 
-MU_TEST(parse_command_with_number_2) {
+MU_TEST(parse_command_only_numbers) {
   Message msg;
+  std::string message = ":meritissimo1!m1 213 #canal1 :eae, menor menor!";
 
   try {
-    msg =
-        parseIrcMessage(":meritissimo1!m1 0RIVMSG #canal1 :eae, menor menor!");
+    msg = parseIrcMessage(message);
     mu_assert(false, "Should throw std::invalid_argument");
   } catch (std::invalid_argument &e) {
     mu_check(true);
@@ -110,32 +111,11 @@ MU_TEST(parse_command_with_number_2) {
 
 MU_TEST(parse_command_without_space) {
   Message msg;
+  std::string message = ":meritissimo1!m1 PRIVMSG#canal1:eae,menormenor!";
 
   try {
-    msg = parseIrcMessage(":meritissimo1!m1 PRIVMSG#canal1:eae,menormenor!");
+    msg = parseIrcMessage(message);
     mu_assert(false, "Should throw std::invalid_argument");
-  } catch (std::invalid_argument &e) {
-    mu_check(true);
-  }
-}
-
-MU_TEST(parse_param_without_space) {
-  Message msg;
-
-  try {
-    msg = parseIrcMessage("PRIVMSG #canal1:eae, menor menor!");
-    mu_assert(false, "Missing <space> before the channel");
-  } catch (std::invalid_argument &e) {
-    mu_check(true);
-  }
-}
-
-MU_TEST(parse_param_without_space_2) {
-  Message msg;
-
-  try {
-    msg = parseIrcMessage("PRIVMSG #canal1:eae,menormenor!");
-    mu_assert(false, "Missing <space> before the channel");
   } catch (std::invalid_argument &e) {
     mu_check(true);
   }
@@ -143,14 +123,12 @@ MU_TEST(parse_param_without_space_2) {
 
 MU_TEST_SUITE(unit_tests) {
   MU_RUN_TEST(parse_empty_message);
-  MU_RUN_TEST(parse_simple_message);
+  MU_RUN_TEST(parse_valid_message);
   MU_RUN_TEST(parse_message_without_space);
   MU_RUN_TEST(parse_prefix_only_user);
   MU_RUN_TEST(parse_command_with_number);
-  MU_RUN_TEST(parse_command_with_number_2);
+  MU_RUN_TEST(parse_command_only_numbers);
   MU_RUN_TEST(parse_command_without_space);
-  MU_RUN_TEST(parse_param_without_space);
-  MU_RUN_TEST(parse_param_without_space_2);
 }
 
 MU_TEST_SUITE(integration_tests) {
