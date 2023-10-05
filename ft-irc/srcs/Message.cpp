@@ -50,13 +50,6 @@ bool isValidCommand(std::string command) {
   return (true);
 }
 
-bool isValidParam(std::string param) {
-  if (param.find(':') != std::string::npos) {
-    return (false);
-  }
-  return (true);
-}
-
 static std::string parseCommand(std::istringstream &iss) {
   std::string command;
 
@@ -70,25 +63,12 @@ static std::string parseCommand(std::istringstream &iss) {
   return (command.substr(0));
 }
 
-static std::string parseParam(std::istringstream &iss) {
-  std::string param;
-
-  param = parseToken(iss);
-  if (iss.eof()) {
-    throw std::invalid_argument("No space after param");
-  }
-  if (!isValidParam(param)) {
-    throw std::invalid_argument("Invalid param");
-  }
-  return (param);
-}
-
 Message parseIrcMessage(const std::string data) {
   Message msg;
   std::istringstream iss;
 
   if (data.empty()) {
-    return (msg);
+    throw std::invalid_argument("Empty message");
   }
   iss.str(data);
   if (data.at(0) == ':') {
@@ -102,7 +82,7 @@ Message parseIrcMessage(const std::string data) {
           iss.str().substr(iss.tellg()); // Read the rest of the string buffer
       break;
     }
-    msg.params.push_back(parseParam(iss));
+    msg.params.push_back(parseToken(iss));
   }
   return (msg);
 }
