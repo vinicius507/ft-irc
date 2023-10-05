@@ -43,7 +43,7 @@ bool checkCommand(std::string cmd) {
   size_t i;
 
   for (i = 0; i < cmd.length(); i++) {
-    if (!isalpha(cmd[i]) || !isupper(cmd[i])) {
+    if (!isalpha(cmd[i])) {
       return (false);
     }
   }
@@ -58,7 +58,7 @@ bool isValidCommand(std::string command) {
 }
 
 bool isValidParam(std::string param) {
-  if (param.at(0) != '#' || param.find(':') != std::string::npos) {
+  if (param.find(':') != std::string::npos) {
     return (false);
   }
   return (true);

@@ -85,17 +85,6 @@ MU_TEST(parse_prefix_only_user) {
   mu_assert_string_eq(msg.trailingParam.c_str(), trailingParam.c_str());
 }
 
-MU_TEST(parse_command_with_lower_letter) {
-  Message msg;
-
-  try {
-    msg = parseIrcMessage(":vini RIVMSg #canal1 :eae, menor menor!");
-    mu_assert(false, "Should throw std::invalid_argument");
-  } catch (std::invalid_argument &e) {
-    mu_check(true);
-  }
-}
-
 MU_TEST(parse_command_with_number) {
   Message msg;
 
@@ -130,17 +119,6 @@ MU_TEST(parse_command_without_space) {
   }
 }
 
-MU_TEST(parse_param_without_hashtag) {
-  Message msg;
-
-  try {
-    msg = parseIrcMessage("PRIVMSG canal1 :eae, menor menor!");
-    mu_assert(false, "Missing '#' before the channel");
-  } catch (std::invalid_argument &e) {
-    mu_check(true);
-  }
-}
-
 MU_TEST(parse_param_without_space) {
   Message msg;
 
@@ -152,17 +130,27 @@ MU_TEST(parse_param_without_space) {
   }
 }
 
+MU_TEST(parse_param_without_space_2) {
+  Message msg;
+
+  try {
+    msg = parseIrcMessage("PRIVMSG #canal1:eae,menormenor!");
+    mu_assert(false, "Missing <space> before the channel");
+  } catch (std::invalid_argument &e) {
+    mu_check(true);
+  }
+}
+
 MU_TEST_SUITE(unit_tests) {
   MU_RUN_TEST(parse_empty_message);
   MU_RUN_TEST(parse_simple_message);
   MU_RUN_TEST(parse_message_without_space);
   MU_RUN_TEST(parse_prefix_only_user);
-  MU_RUN_TEST(parse_command_with_lower_letter);
   MU_RUN_TEST(parse_command_with_number);
   MU_RUN_TEST(parse_command_with_number_2);
   MU_RUN_TEST(parse_command_without_space);
   MU_RUN_TEST(parse_param_without_space);
-  MU_RUN_TEST(parse_param_without_hashtag);
+  MU_RUN_TEST(parse_param_without_space_2);
 }
 
 MU_TEST_SUITE(integration_tests) {
