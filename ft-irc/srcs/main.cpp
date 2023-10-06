@@ -1,12 +1,15 @@
+#include "Client.hpp"
 #include "Server.hpp"
 #include <csignal>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 
 static inline void configureSignalHandlers(void) {
   struct sigaction mask;
-  mask.sa_handler = Server::gracefulShutdown;
 
+  std::memset(&mask, 0, sizeof(struct sigaction));
+  mask.sa_handler = Server::gracefulShutdown;
   sigaction(SIGINT, &mask, NULL);
   sigaction(SIGTERM, &mask, NULL);
   sigaction(SIGTSTP, &mask, NULL);

@@ -10,8 +10,7 @@ ServerSocket::ServerSocket(void) : _socketFd(-1), _port(6667) {}
 
 ServerSocket::ServerSocket(short port) : _socketFd(-1), _port(port) {}
 
-ServerSocket::ServerSocket(const ServerSocket &other)
-    : _socketFd(other._socketFd), _port(other._port) {}
+ServerSocket::ServerSocket(const ServerSocket &other) : _socketFd(other._socketFd), _port(other._port) {}
 
 ServerSocket::~ServerSocket(void) { this->closeSocket(); }
 
@@ -36,10 +35,7 @@ bool ServerSocket::bindAndListen(void) {
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_addr.s_addr = INADDR_ANY;
   serverAddr.sin_port = htons(this->_port);
-  int bindResult = bind(
-      this->_socketFd,
-      reinterpret_cast<struct sockaddr *>(&serverAddr),
-      sizeof(serverAddr));
+  int bindResult = bind(this->_socketFd, reinterpret_cast<struct sockaddr *>(&serverAddr), sizeof(serverAddr));
   if (bindResult == -1) {
     std::perror("bind");
     this->closeSocket();
@@ -50,8 +46,7 @@ bool ServerSocket::bindAndListen(void) {
     this->closeSocket();
     return (false);
   }
-  std::cerr << "Started listening on 0.0.0.0:" << this->_port << "."
-            << std::endl;
+  std::cerr << "Started listening on 0.0.0.0:" << this->_port << "." << std::endl;
   return (true);
 }
 
@@ -62,10 +57,7 @@ int ServerSocket::acceptClient(void) const {
   socklen_t addrLen = sizeof(clientAddr);
 
   std::memset(&clientAddr, 0, addrLen);
-  int clientFd = accept(
-      this->_socketFd,
-      reinterpret_cast<struct sockaddr *>(&clientAddr),
-      &addrLen);
+  int clientFd = accept(this->_socketFd, reinterpret_cast<struct sockaddr *>(&clientAddr), &addrLen);
   if (clientFd == -1) {
     std::perror("accept");
   }

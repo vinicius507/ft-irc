@@ -29,9 +29,7 @@ void PollManager::disconnectClients(void) {
   }
 }
 
-bool PollManager::hasNewClientOnQueue(void) const {
-  return (this->_pollFds[0].revents & POLLIN);
-}
+bool PollManager::hasNewClientOnQueue(void) const { return (this->_pollFds[0].revents & POLLIN); }
 
 std::vector<int> PollManager::getFdsReadyForReading(void) const {
   std::vector<int> fds;

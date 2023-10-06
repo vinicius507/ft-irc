@@ -7,7 +7,8 @@ SRC_DIR := ./srcs
 BUILD_DIR = ./build
 TESTS_DIR = ./tests
 
-SRCS := main.cpp Server.cpp ServerSocket.cpp PollManager.cpp
+SRCS := main.cpp Server.cpp ServerSocket.cpp PollManager.cpp \
+		Client.cpp Message.cpp ClientsManager.cpp
 TEST_SRCS := $(filter-out main.cpp,$(SRCS)) test_main.cpp
 
 OBJS := $(addprefix $(BUILD_DIR)/,$(SRCS:%.cpp=%.o))
@@ -40,5 +41,11 @@ fclean: clean
 	${RM} ./run_tests
 
 re: fclean all
+
+gdb: all
+	gdb --tui --args $(NAME) 6667
+
+tgdb: tests
+	gdb --tui run_tests
 
 .PHONY: all tests clean fclean re

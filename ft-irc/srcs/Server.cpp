@@ -1,6 +1,10 @@
 #include "Server.hpp"
+#include "Message.hpp"
+#include <algorithm>
 #include <arpa/inet.h>
+#include <cerrno>
 #include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <netinet/in.h>
 #include <sys/poll.h>
@@ -12,8 +16,7 @@ bool Server::_shouldExit = false;
 Server::Server(void) : _pollFds(), _socket() {}
 Server::Server(short port) : _pollFds(), _socket(port) {}
 
-Server::Server(const Server &other)
-    : _pollFds(other._pollFds), _socket(other._socket) {}
+Server::Server(const Server &other) : _pollFds(other._pollFds), _socket(other._socket) {}
 
 Server::~Server(void) {}
 
@@ -26,6 +29,7 @@ Server &Server::operator=(const Server &other) {
 }
 
 bool Server::run(void) {
+  int clientFd;
   std::vector<int> arrayOfFds;
   std::vector<int>::iterator itOfFds;
 
@@ -44,7 +48,13 @@ bool Server::run(void) {
       break;
     }
     if (this->_pollFds.hasNewClientOnQueue()) {
-      this->_pollFds.addFd(this->_socket.acceptClient());
+      clientFd = this->_socket.acceptClient();
+      if (clientFd != -1) {
+        this->_clients.addClient(clientFd);
+        this->_pollFds.addFd(clientFd);
+      } else {
+        std::cerr << "Error: couldn't accept new client" << std::endl;
+      }
     }
     arrayOfFds = this->_pollFds.getFdsReadyForReading();
     for (itOfFds = arrayOfFds.begin(); itOfFds != arrayOfFds.end(); ++itOfFds) {
@@ -55,27 +65,38 @@ bool Server::run(void) {
 }
 
 void Server::handleClientData(int clientFd) {
-  int bytesRead;
-  char buffer[255] = {0};
+  Message msg;
+  std::string::size_type crlf;
+  Client *client = this->_clients[clientFd];
 
-  bytesRead = ::recv(clientFd, buffer, sizeof(buffer), MSG_DONTWAIT);
-  if (bytesRead == -1) {
-    std::perror("recv");
+  switch (client->read()) {
+  case Client::ReadError:
+    std::cerr << "Error: couldn't read from client socket: " << std::strerror(errno) << std::endl;
+    // Intentional fallthrough
+  case Client::ReadEof:
+    std::cerr << "INFO: Client disconnected: " << clientFd << std::endl;
     this->_pollFds.removeFd(clientFd);
-    return;
+    this->_clients.disconnectClient(clientFd);
+    break;
+  case Client::ReadIn:
+    std::string &buf = client->getBuffer();
+    crlf = buf.find(CRLF);
+    if (crlf != std::string::npos) {
+      try {
+        msg = parseIrcMessage(std::string(buf.substr(0, crlf)));
+        // handle message
+      } catch (std::invalid_argument &e) {
+        std::cerr << "Debug: Ignoring malformed message: " << e.what() << std::endl;
+      } catch (std::exception &e) {
+        std::cerr << "Error: Could not parse message: " << e.what() << std::endl;
+      }
+      buf.erase(0, crlf + CRLF.length());
+    }
+    break;
   }
-  if (bytesRead == 0) {
-    std::cerr << "Client disconnected: " << clientFd << std::endl;
-    this->_pollFds.removeFd(clientFd);
-    return;
-  }
-  std::string msg(buffer, buffer + bytesRead);
-  std::cerr << "Message from client: " << msg << std::endl;
-  ::send(clientFd, "\n", 1, 0);
 }
 
 void Server::gracefulShutdown(int signal) {
   Server::_shouldExit = true;
-  std::cerr << "\nReceived signal " << signal << ", shutting down the server."
-            << std::endl;
+  std::cerr << "\nReceived signal " << signal << ", shutting down the server." << std::endl;
 }
