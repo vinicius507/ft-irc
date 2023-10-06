@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#define CRLF std::string("\\r\\n") // FIXME: change for string literal "\r\n"
+#define CRLF std::string("\r\n")
 
 struct Message {
   std::string prefix;
