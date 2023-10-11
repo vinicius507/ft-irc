@@ -1,7 +1,7 @@
 NAME = ircserv
 
 CXX = c++
-CFLAGS = -g3 -Wall -Wextra -Werror -std=c++98
+CFLAGS := -Wall -Wextra -Werror -std=c++98
 
 SRC_DIR := ./srcs
 BUILD_DIR = ./build
@@ -21,6 +21,7 @@ all: ${NAME}
 ${NAME}: ${OBJS}
 	${CXX} ${CFLAGS} $^ -o $@
 
+tests: override CFLAGS = -g3 -O0 -fsanitize=address
 tests: ${TEST_OBJS}
 	${CXX} ${CFLAGS} $^ -lrt -lm -o run_tests
 	./run_tests
@@ -42,8 +43,9 @@ fclean: clean
 
 re: fclean all
 
+gdb: override CFLAGS = -g3 -O0
 gdb: all
-	gdb --tui --args $(NAME) 6667
+	gdb --tui --args $(NAME) 6667 senhaforte
 
 tgdb: tests
 	gdb --tui run_tests

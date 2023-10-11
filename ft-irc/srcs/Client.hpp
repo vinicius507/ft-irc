@@ -15,6 +15,8 @@ class Client {
 
   Client &operator=(const Client &client);
 
+  static void setPassword(const std::string &password);
+
   int getFd(void) const;
 
   std::string &getBuffer(void);
@@ -30,6 +32,8 @@ class Client {
   private:
   const int _fd;
   std::string _buffer;
+
+  static const std::string _password;
 };
 
 #endif

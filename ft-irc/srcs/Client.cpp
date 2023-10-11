@@ -25,6 +25,10 @@ Client::~Client(void) {
   }
 }
 
+const std::string Client::_password = "";
+
+void Client::setPassword(const std::string &password) { const_cast<std::string &>(Client::_password) = password; }
+
 int Client::getFd(void) const { return (this->_fd); }
 
 std::string &Client::getBuffer(void) { return (this->_buffer); }
