@@ -9,5 +9,6 @@
 #define ERR_NOTREGISTERED(target) numericReply("451", target, ":You have not registered")
 #define ERR_NEEDMOREPARAMS(target, command) numericReply("461", target, command + " :Not enough parameters")
 #define ERR_ALREADYREGISTRED(target) numericReply("462", target, ":You may not reregister")
+#define ERR_PASSWSMISMATCH(target) numericReply("464", target, ":Password Incorrect")
 
 #endif

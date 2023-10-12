@@ -85,7 +85,7 @@ void Server::handleMessage(Client *client, Message &msg) {
     if (this->isConnectionPasswordValid(connectionPassword)) {
       client->setAuthState(AuthPass);
     } else {
-      client->setAuthState(AuthNone);
+      client->send(ERR_PASSWSMISMATCH(client->getNickname()));
     }
   } else {
     if (client->getAuthState() != AuthDone) {
