@@ -46,8 +46,7 @@ int main(int argc, char **argv) {
     std::cerr << "Usage: " << argv[0] << " PORT PASSWORD" << std::endl;
     return (1);
   }
-  server = Server(args.port);
-  Client::setPassword(args.password);
+  server = Server(args.port, args.password);
   configureSignalHandlers();
   if (server.run() == false) {
     std::cerr << "Error: failed to run server." << std::endl;

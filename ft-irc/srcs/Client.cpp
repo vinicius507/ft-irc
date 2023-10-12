@@ -25,13 +25,17 @@ Client::~Client(void) {
   }
 }
 
-const std::string Client::_password = "";
+AuthState Client::getAuthState(void) const { return (this->_authState); }
 
-void Client::setPassword(const std::string &password) { const_cast<std::string &>(Client::_password) = password; }
+void Client::setAuthState(AuthState state) { this->_authState = state; }
 
 int Client::getFd(void) const { return (this->_fd); }
 
 std::string &Client::getBuffer(void) { return (this->_buffer); }
+
+const std::string &Client::getNickname(void) const { return (this->_nickname); }
+
+void Client::setNickname(const std::string &nickname) { const_cast<std::string &>(this->_nickname) = nickname; }
 
 Client::ReadEvent Client::read(void) {
   ssize_t bytesRead;
@@ -48,3 +52,5 @@ Client::ReadEvent Client::read(void) {
     return (Client::ReadIn);
   }
 }
+
+void Client::send(const std::string &msg) { ::send(this->_fd, msg.c_str(), msg.size(), 0); }

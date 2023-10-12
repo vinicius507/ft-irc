@@ -3,6 +3,13 @@
 
 #include <string>
 
+enum AuthState {
+  AuthNone,
+  AuthPass,
+  AuthNick,
+  AuthDone,
+};
+
 class Client {
   public:
   Client(void);
@@ -15,11 +22,17 @@ class Client {
 
   Client &operator=(const Client &client);
 
-  static void setPassword(const std::string &password);
-
   int getFd(void) const;
 
+  AuthState getAuthState(void) const;
+
+  void setAuthState(AuthState state);
+
   std::string &getBuffer(void);
+
+  const std::string &getNickname(void) const;
+
+  void setNickname(const std::string &nickname);
 
   enum ReadEvent {
     ReadError = -1,
@@ -29,11 +42,13 @@ class Client {
 
   ReadEvent read(void);
 
+  void send(const std::string &msg);
+
   private:
   const int _fd;
   std::string _buffer;
-
-  static const std::string _password;
+  AuthState _authState;
+  std::string _nickname;
 };
 
 #endif

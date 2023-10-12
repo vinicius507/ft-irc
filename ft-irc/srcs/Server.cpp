@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "Message.hpp"
+#include "numericReplies.hpp"
 #include <algorithm>
 #include <arpa/inet.h>
 #include <cerrno>
@@ -13,10 +14,13 @@
 
 bool Server::_shouldExit = false;
 
-Server::Server(void) : _pollFds(), _socket() {}
-Server::Server(short port) : _pollFds(), _socket(port) {}
+Server::Server(void) : _pollFds(), _socket(), _connectionPassword() {}
 
-Server::Server(const Server &other) : _pollFds(other._pollFds), _socket(other._socket) {}
+Server::Server(short port, const std::string &connectionPassword)
+    : _pollFds(), _socket(port), _connectionPassword(connectionPassword) {}
+
+Server::Server(const Server &other)
+    : _pollFds(other._pollFds), _socket(other._socket), _connectionPassword(other._connectionPassword) {}
 
 Server::~Server(void) {}
 
@@ -24,6 +28,7 @@ Server &Server::operator=(const Server &other) {
   if (this != &other) {
     this->_pollFds = other._pollFds;
     this->_socket = other._socket;
+    const_cast<std::string &>(this->_connectionPassword) = other._connectionPassword;
   }
   return (*this);
 }
@@ -62,6 +67,37 @@ bool Server::run(void) {
     }
   }
   return (true);
+}
+
+void Server::handleMessage(Client *client, Message &msg) {
+  if (msg.command == "PASS") {
+    std::string connectionPassword;
+
+    if (client->getAuthState() == AuthDone) {
+      client->send(ERR_ALREADYREGISTRED(client->getNickname()));
+      return;
+    }
+    if (msg.params.size() < 1) {
+      client->send(ERR_NEEDMOREPARAMS(client->getNickname(), msg.command));
+      return;
+    }
+    connectionPassword = msg.params.at(0);
+    if (this->isConnectionPasswordValid(connectionPassword)) {
+      client->setAuthState(AuthPass);
+    } else {
+      client->setAuthState(AuthNone);
+    }
+  } else {
+    if (client->getAuthState() != AuthDone) {
+      client->send(ERR_NOTREGISTERED(client->getNickname()));
+      return;
+    }
+    client->send(ERR_UNKNOWNCOMMAND(client->getNickname(), msg.command));
+  }
+}
+
+bool Server::isConnectionPasswordValid(const std::string &connectionPassword) const {
+  return (this->_connectionPassword == connectionPassword);
 }
 
 void Server::handleClientData(int clientFd) {
