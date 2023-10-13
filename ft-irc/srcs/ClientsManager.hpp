@@ -18,11 +18,17 @@ class ClientsManager {
 
   const Client *operator[](int clientFd) const;
 
+  typedef std::map<int, Client *>::iterator iterator;
+
   void addClient(int clientFd);
 
   void disconnectClient(int clientFd);
 
   void disconnectAllClients(void);
+
+  iterator begin(void);
+
+  iterator end(void);
 
   private:
   std::map<int, Client *> _clients;

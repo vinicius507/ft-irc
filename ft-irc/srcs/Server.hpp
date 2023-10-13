@@ -26,6 +26,8 @@ class Server {
 
   bool isConnectionPasswordValid(const std::string &connectionPassword) const;
 
+  Client *getClientByNickname(const std::string &nickname);
+
   static void gracefulShutdown(int signal);
 
   static bool _shouldExit;

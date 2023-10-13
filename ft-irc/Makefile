@@ -8,7 +8,8 @@ BUILD_DIR = ./build
 TESTS_DIR = ./tests
 
 SRCS := main.cpp Server.cpp ServerSocket.cpp PollManager.cpp \
-		Client.cpp Message.cpp ClientsManager.cpp
+		Client.cpp Message.cpp ClientsManager.cpp commands/pass.cpp \
+		commands/nick.cpp 
 TEST_SRCS := $(filter-out main.cpp,$(SRCS)) test_main.cpp
 
 OBJS := $(addprefix $(BUILD_DIR)/,$(SRCS:%.cpp=%.o))
@@ -19,7 +20,7 @@ TEST_SRCS := $(addprefix $(TESTS_DIR)/,$(TEST_SRCS))
 all: ${NAME}
 
 ${NAME}: ${OBJS}
-	${CXX} ${CFLAGS} $^ -o $@
+	${CXX} ${CFLAGS} ${addprefix ${BUILD_DIR}/,${^F}} -o $@
 
 tests: override CFLAGS = -g3 -O0 -fsanitize=address
 tests: ${TEST_OBJS}
@@ -28,7 +29,7 @@ tests: ${TEST_OBJS}
 
 ${BUILD_DIR}/%.o: ${SRC_DIR}/%.cpp
 	@mkdir -p ${BUILD_DIR}
-	${CXX} ${CFLAGS} $< -c -o $@
+	${CXX} ${CFLAGS} $< -c -o ${BUILD_DIR}/${@F}
 
 ${BUILD_DIR}/%.o: ${TESTS_DIR}/%.cpp
 	@mkdir -p ${BUILD_DIR}

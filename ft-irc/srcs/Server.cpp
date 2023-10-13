@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "Message.hpp"
+#include "commands.hpp"
 #include "numericReplies.hpp"
 #include <algorithm>
 #include <arpa/inet.h>
@@ -71,22 +72,9 @@ bool Server::run(void) {
 
 void Server::handleMessage(Client *client, Message &msg) {
   if (msg.command == "PASS") {
-    std::string connectionPassword;
-
-    if (client->getAuthState() == AuthDone) {
-      client->send(ERR_ALREADYREGISTRED(client->getNickname()));
-      return;
-    }
-    if (msg.params.size() < 1) {
-      client->send(ERR_NEEDMOREPARAMS(client->getNickname(), msg.command));
-      return;
-    }
-    connectionPassword = msg.params.at(0);
-    if (this->isConnectionPasswordValid(connectionPassword)) {
-      client->setAuthState(AuthPass);
-    } else {
-      client->send(ERR_PASSWSMISMATCH(client->getNickname()));
-    }
+    passCommand(*this, client, msg);
+  } else if (msg.command == "NICK") {
+    nickCommand(*this, client, msg);
   } else {
     if (client->getAuthState() != AuthDone) {
       client->send(ERR_NOTREGISTERED(client->getNickname()));
@@ -130,6 +118,17 @@ void Server::handleClientData(int clientFd) {
     }
     break;
   }
+}
+
+Client *Server::getClientByNickname(const std::string &nickname) {
+  ClientsManager::iterator it;
+
+  for (it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+    if (it->second->getNickname() == nickname) {
+      return (it->second);
+    }
+  }
+  return (NULL);
 }
 
 void Server::gracefulShutdown(int signal) {
