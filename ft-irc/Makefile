@@ -24,7 +24,7 @@ ${NAME}: ${OBJS}
 
 tests: override CFLAGS = -g3 -O0 -fsanitize=address
 tests: ${TEST_OBJS}
-	${CXX} ${CFLAGS} $^ -lrt -lm -o run_tests
+	${CXX} ${CFLAGS} ${addprefix ${BUILD_DIR}/,${^F}} -lrt -lm -o run_tests
 	./run_tests
 
 ${BUILD_DIR}/%.o: ${SRC_DIR}/%.cpp
