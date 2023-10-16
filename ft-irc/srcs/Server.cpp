@@ -70,20 +70,6 @@ bool Server::run(void) {
   return (true);
 }
 
-void Server::handleMessage(Client *client, Message &msg) {
-  if (msg.command == "PASS") {
-    passCommand(*this, client, msg);
-  } else if (msg.command == "NICK") {
-    nickCommand(*this, client, msg);
-  } else {
-    if (client->getAuthState() != AuthDone) {
-      client->send(ERR_NOTREGISTERED(client->getNickname()));
-      return;
-    }
-    client->send(ERR_UNKNOWNCOMMAND(client->getNickname(), msg.command));
-  }
-}
-
 bool Server::isConnectionPasswordValid(const std::string &connectionPassword) const {
   return (this->_connectionPassword == connectionPassword);
 }
@@ -108,7 +94,7 @@ void Server::handleClientData(int clientFd) {
     if (crlf != std::string::npos) {
       try {
         msg = parseIrcMessage(std::string(buf.substr(0, crlf)));
-        // handle message
+        this->handleMessage(client, msg);
       } catch (std::invalid_argument &e) {
         std::cerr << "Debug: Ignoring malformed message: " << e.what() << std::endl;
       } catch (std::exception &e) {
@@ -117,6 +103,20 @@ void Server::handleClientData(int clientFd) {
       buf.erase(0, crlf + CRLF.length());
     }
     break;
+  }
+}
+
+void Server::handleMessage(Client *client, Message &msg) {
+  if (msg.command == "PASS") {
+    passCommand(*this, client, msg);
+  } else if (msg.command == "NICK") {
+    nickCommand(*this, client, msg);
+  } else {
+    if (client->getAuthState() != AuthDone) {
+      client->send(ERR_NOTREGISTERED(client->getNickname()));
+      return;
+    }
+    client->send(ERR_UNKNOWNCOMMAND(client->getNickname(), msg.command));
   }
 }
 
