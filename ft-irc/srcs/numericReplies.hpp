@@ -5,6 +5,8 @@
 
 #define numericReply(numeric, target, message) std::string(":ft-irc ") + numeric + " " + target + " " + message + CRLF
 
+#define RPL_WELCOME(target, client) numericReply("001", target, ":Welcome to the 42 IRC " + client)
+
 #define ERR_UNKNOWNCOMMAND(target, command) numericReply("421", target, command + " :Unknown command")
 #define ERR_NONICKNAMEGIVEN(target) numericReply("431", target, ":No nickname given")
 #define ERR_ERRONEUSNICKNAME(target, nickname) numericReply("432", target, nickname + " :Erroneous nickname")

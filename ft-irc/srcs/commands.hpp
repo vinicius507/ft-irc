@@ -13,4 +13,6 @@ void passCommand(Server &server, Client *client, Message &msg);
 
 void nickCommand(Server &server, Client *client, Message &msg);
 
+void userCommand(Server &server, Client *client, Message &msg);
+
 #endif

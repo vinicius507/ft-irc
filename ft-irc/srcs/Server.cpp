@@ -111,6 +111,8 @@ void Server::handleMessage(Client *client, Message &msg) {
     passCommand(*this, client, msg);
   } else if (msg.command == "NICK") {
     nickCommand(*this, client, msg);
+  } else if (msg.command == "USER") {
+    userCommand(*this, client, msg);
   } else {
     if (client->getAuthState() != AuthDone) {
       client->send(ERR_NOTREGISTERED(client->getNickname()));
