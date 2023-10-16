@@ -33,7 +33,7 @@ ${BUILD_DIR}/%.o: ${SRC_DIR}/%.cpp
 
 ${BUILD_DIR}/%.o: ${TESTS_DIR}/%.cpp
 	@mkdir -p ${BUILD_DIR}
-	${CXX} ${CFLAGS} $< -c -o $@
+	${CXX} ${CFLAGS} $< -c -o ${BUILD_DIR}/${@F}
 
 clean:
 	rm -rf ${BUILD_DIR}
