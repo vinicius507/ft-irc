@@ -23,6 +23,9 @@ void userCommand(Server &server, Client *client, Message &msg) {
   (void)server;
   std::string username, hostname, realname;
 
+  if (client->getAuthState() < AuthNick) {
+    return;
+  }
   if (client->getAuthState() == AuthDone) {
     client->send(ERR_ALREADYREGISTRED(client->getNickname()));
     return;
