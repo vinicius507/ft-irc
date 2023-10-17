@@ -24,25 +24,37 @@ static bool isNicknameValid(const std::string &nickname) {
   return (true);
 }
 
+static std::string getNicknameWithFallback(const Client *client) {
+  std::string nickname = client->getNickname();
+
+  if (nickname.empty()) {
+    return ("*");
+  }
+  return (nickname);
+}
+
 void nickCommand(Server &server, Client *client, Message &msg) {
   std::string nickname;
 
   if (client->getAuthState() == AuthNone) {
-    client->send(ERR_NOTREGISTERED(client->getNickname()));
+    client->send(ERR_NOTREGISTERED("*"));
     return;
   }
   if (msg.params.size() < 1) {
-    client->send(ERR_NONICKNAMEGIVEN(client->getNickname()));
+    client->send(ERR_NONICKNAMEGIVEN(getNicknameWithFallback(client)));
     return;
   }
   nickname = msg.params.at(0);
   if (server.getClientByNickname(nickname) != NULL) {
-    client->send(ERR_NICKNAMEINUSE(client->getNickname(), nickname));
+    client->send(ERR_NICKNAMEINUSE(getNicknameWithFallback(client), nickname));
     return;
   }
-  if (isNicknameValid(nickname) == false) {
-    client->send(ERR_ERRONEUSNICKNAME(client->getNickname(), nickname));
+  if (!isNicknameValid(nickname)) {
+    client->send(ERR_ERRONEUSNICKNAME(getNicknameWithFallback(client), nickname));
     return;
   }
   client->setNickname(nickname);
+  if (client->getAuthState() == AuthPass) {
+    client->setAuthState(AuthNick);
+  }
 }

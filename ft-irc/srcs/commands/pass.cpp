@@ -13,13 +13,13 @@ void passCommand(Server &server, Client *client, Message &msg) {
     return;
   }
   if (msg.params.size() < 1) {
-    client->send(ERR_NEEDMOREPARAMS(client->getNickname(), msg.command));
+    client->send(ERR_NEEDMOREPARAMS("*", msg.command));
     return;
   }
   connectionPassword = msg.params.at(0);
   if (server.isConnectionPasswordValid(connectionPassword)) {
     client->setAuthState(AuthPass);
   } else {
-    client->send(ERR_PASSWSMISMATCH(client->getNickname()));
+    client->send(ERR_PASSWSMISMATCH("*"));
   }
 }

@@ -116,7 +116,7 @@ void Server::handleMessage(Client *client, Message &msg) {
     userCommand(*this, client, msg);
   } else {
     if (client->getAuthState() != AuthDone) {
-      client->send(ERR_NOTREGISTERED(client->getNickname()));
+      client->send(ERR_NOTREGISTERED("*"));
       return;
     }
     client->send(ERR_UNKNOWNCOMMAND(client->getNickname(), msg.command));
