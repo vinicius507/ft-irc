@@ -5,7 +5,7 @@
 
 Client::Client(void) : _fd(-1) {}
 
-Client::Client(int fd) : _fd(fd) {}
+Client::Client(int fd) : _fd(fd), _authState(AuthNone) {}
 
 Client::Client(const Client &client) : _fd(client._fd) {}
 
@@ -39,8 +39,6 @@ void Client::setNickname(const std::string &nickname) { const_cast<std::string &
 void Client::setUsername(const std::string &username) { const_cast<std::string &>(this->_username) = username; }
 void Client::setRealname(const std::string &realname) { const_cast<std::string &>(this->_realname) = realname; }
 void Client::setHostname(const std::string &hostname) { const_cast<std::string &>(this->_hostname) = hostname; }
-
-
 
 const std::string &Client::getUsername(void) const { return (this->_username); }
 const std::string &Client::getRealname(void) const { return (this->_realname); }

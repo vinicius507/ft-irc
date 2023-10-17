@@ -120,6 +120,18 @@ MU_TEST(parse_command_without_space) {
   }
 }
 
+MU_TEST(test_command_pass) {
+  Message msg;
+  std::string command = "PASS";
+  std::string param = "senhaforte";
+  std::string message = "PASS senhaforte";
+
+  msg = parseIrcMessage(message);
+
+  mu_assert_string_eq(msg.command.c_str(), command.c_str());
+  mu_assert_string_eq(msg.params.at(0).c_str(), param.c_str());
+}
+
 MU_TEST_SUITE(unit_tests) {
   MU_RUN_TEST(parse_empty_message);
   MU_RUN_TEST(parse_valid_message);
@@ -128,6 +140,7 @@ MU_TEST_SUITE(unit_tests) {
   MU_RUN_TEST(parse_command_with_number);
   MU_RUN_TEST(parse_command_only_numbers);
   MU_RUN_TEST(parse_command_without_space);
+  MU_RUN_TEST(test_command_pass);
 }
 
 MU_TEST_SUITE(integration_tests) { MU_SUITE_CONFIGURE(setupServer, teardownServer); }

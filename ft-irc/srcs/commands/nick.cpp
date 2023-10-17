@@ -36,7 +36,7 @@ void nickCommand(Server &server, Client *client, Message &msg) {
     return;
   }
   nickname = msg.params.at(0);
-  if (server.getClientByNickname(nickname) == NULL) {
+  if (server.getClientByNickname(nickname) != NULL) {
     client->send(ERR_NICKNAMEINUSE(client->getNickname(), nickname));
     return;
   }
