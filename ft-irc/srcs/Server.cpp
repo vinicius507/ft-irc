@@ -90,17 +90,18 @@ void Server::handleClientData(int clientFd) {
     break;
   case Client::ReadIn:
     std::string &buf = client->getBuffer();
-    crlf = buf.find(CRLF);
-    if (crlf != std::string::npos) {
+    while ((crlf = buf.find(CRLF)) != std::string::npos) {
+      std::string data = buf.substr(0, crlf);
+      std::cerr << "Debug: Parsing message: " << data << std::endl;
+      buf.erase(0, crlf + CRLF.length());
       try {
-        msg = parseIrcMessage(std::string(buf.substr(0, crlf)));
+        msg = parseIrcMessage(data);
         this->handleMessage(client, msg);
       } catch (std::invalid_argument &e) {
         std::cerr << "Debug: Ignoring malformed message: " << e.what() << std::endl;
       } catch (std::exception &e) {
         std::cerr << "Error: Could not parse message: " << e.what() << std::endl;
       }
-      buf.erase(0, crlf + CRLF.length());
     }
     break;
   }
