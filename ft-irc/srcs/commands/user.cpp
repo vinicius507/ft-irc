@@ -14,14 +14,35 @@ static std::string getClientHostname(Client *client) {
 
   sockaddr_len = sizeof(sockaddr);
   getpeername(client->getFd(), reinterpret_cast<struct sockaddr *>(&sockaddr), &sockaddr_len);
-
   hostname = inet_ntoa(sockaddr.sin_addr);
   return (hostname);
 }
 
+static void registerClient(Client *client, const std::string &username, const std::string &realname) {
+  std::string hostname;
+
+  hostname = getClientHostname(client);
+  client->setUsername(username);
+  client->setHostname(hostname);
+  client->setRealname(realname);
+  client->setAuthState(AuthDone);
+}
+
+static void greetClient(Client *client) {
+  std::string msgs[4] = {
+      RPL_WELCOME(client->getNickname(), client->getUsername(), client->getHostname()),
+      RPL_YOURHOST(client->getNickname()),
+      RPL_CREATED(client->getNickname()),
+      RPL_MYINFO(client->getNickname()),
+  };
+
+  for (int i = 0; i < 4; i++) {
+    client->send(msgs[i]);
+  }
+}
+
 void userCommand(Server &server, Client *client, Message &msg) {
   (void)server;
-  std::string username, hostname, realname;
 
   if (client->getAuthState() < AuthNick) {
     return;
@@ -34,14 +55,6 @@ void userCommand(Server &server, Client *client, Message &msg) {
     client->send(ERR_NEEDMOREPARAMS(client->getNickname(), msg.command));
     return;
   }
-  username = msg.params.at(0);
-  realname = msg.trailingParam;
-  hostname = getClientHostname(client);
-  client->setUsername(username);
-  client->setRealname(realname);
-  client->setHostname(hostname);
-  client->setAuthState(AuthDone);
-  client->send(RPL_WELCOME(
-      client->getNickname(),
-      std::string(client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname())));
+  registerClient(client, msg.params.at(0), msg.trailingParam);
+  greetClient(client);
 }
