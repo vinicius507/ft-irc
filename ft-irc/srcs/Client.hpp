@@ -40,9 +40,6 @@ class Client {
   void setRealname(const std::string &realname);
   void setHostname(const std::string &hostname);
 
-
-  
-
   enum ReadEvent {
     ReadError = -1,
     ReadEof,
@@ -57,7 +54,7 @@ class Client {
   const int _fd;
   std::string _buffer;
   AuthState _authState;
-  
+
   const std::string _nickname;
   const std::string _username;
   const std::string _realname;

@@ -15,4 +15,6 @@ void nickCommand(Server &server, Client *client, Message &msg);
 
 void userCommand(Server &server, Client *client, Message &msg);
 
+void joinCommand(Server &server, Client *client, Message &msg);
+
 #endif

@@ -1,6 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "Channel.hpp"
 #include "ClientsManager.hpp"
 #include "Message.hpp"
 #include "PollManager.hpp"
@@ -36,6 +37,7 @@ class Server {
   PollManager _pollFds;
   ServerSocket _socket;
   ClientsManager _clients;
+  std::map<std::string, Channel> _channels;
   const std::string _connectionPassword;
 };
 
