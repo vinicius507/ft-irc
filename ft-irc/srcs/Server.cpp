@@ -1,5 +1,7 @@
 #include "Server.hpp"
 #include "Message.hpp"
+#include "commands.hpp"
+#include "numericReplies.hpp"
 #include <algorithm>
 #include <arpa/inet.h>
 #include <cerrno>
@@ -13,10 +15,13 @@
 
 bool Server::_shouldExit = false;
 
-Server::Server(void) : _pollFds(), _socket() {}
-Server::Server(short port) : _pollFds(), _socket(port) {}
+Server::Server(void) : _pollFds(), _socket(), _connectionPassword() {}
 
-Server::Server(const Server &other) : _pollFds(other._pollFds), _socket(other._socket) {}
+Server::Server(short port, const std::string &connectionPassword)
+    : _pollFds(), _socket(port), _connectionPassword(connectionPassword) {}
+
+Server::Server(const Server &other)
+    : _pollFds(other._pollFds), _socket(other._socket), _connectionPassword(other._connectionPassword) {}
 
 Server::~Server(void) {}
 
@@ -24,6 +29,7 @@ Server &Server::operator=(const Server &other) {
   if (this != &other) {
     this->_pollFds = other._pollFds;
     this->_socket = other._socket;
+    const_cast<std::string &>(this->_connectionPassword) = other._connectionPassword;
   }
   return (*this);
 }
@@ -64,6 +70,10 @@ bool Server::run(void) {
   return (true);
 }
 
+bool Server::isConnectionPasswordValid(const std::string &connectionPassword) const {
+  return (this->_connectionPassword == connectionPassword);
+}
+
 void Server::handleClientData(int clientFd) {
   Message msg;
   std::string::size_type crlf;
@@ -80,20 +90,48 @@ void Server::handleClientData(int clientFd) {
     break;
   case Client::ReadIn:
     std::string &buf = client->getBuffer();
-    crlf = buf.find(CRLF);
-    if (crlf != std::string::npos) {
+    while ((crlf = buf.find(CRLF)) != std::string::npos) {
+      std::string data = buf.substr(0, crlf);
+      std::cerr << "Debug: Parsing message: " << data << std::endl;
+      buf.erase(0, crlf + CRLF.length());
       try {
-        msg = parseIrcMessage(std::string(buf.substr(0, crlf)));
-        // handle message
+        msg = parseIrcMessage(data);
+        this->handleMessage(client, msg);
       } catch (std::invalid_argument &e) {
         std::cerr << "Debug: Ignoring malformed message: " << e.what() << std::endl;
       } catch (std::exception &e) {
         std::cerr << "Error: Could not parse message: " << e.what() << std::endl;
       }
-      buf.erase(0, crlf + CRLF.length());
     }
     break;
   }
+}
+
+void Server::handleMessage(Client *client, Message &msg) {
+  if (msg.command == "PASS") {
+    passCommand(*this, client, msg);
+  } else if (msg.command == "NICK") {
+    nickCommand(*this, client, msg);
+  } else if (msg.command == "USER") {
+    userCommand(*this, client, msg);
+  } else {
+    if (client->getAuthState() != AuthDone) {
+      client->send(ERR_NOTREGISTERED("*"));
+      return;
+    }
+    client->send(ERR_UNKNOWNCOMMAND(client->getNickname(), msg.command));
+  }
+}
+
+Client *Server::getClientByNickname(const std::string &nickname) {
+  ClientsManager::iterator it;
+
+  for (it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+    if (it->second->getNickname() == nickname) {
+      return (it->second);
+    }
+  }
+  return (NULL);
 }
 
 void Server::gracefulShutdown(int signal) {

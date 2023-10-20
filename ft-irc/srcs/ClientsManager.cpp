@@ -33,3 +33,7 @@ void ClientsManager::disconnectClient(int clientFd) {
 }
 
 void ClientsManager::disconnectAllClients(void) { this->_clients.clear(); }
+
+ClientsManager::iterator ClientsManager::begin(void) { return (this->_clients.begin()); }
+
+ClientsManager::iterator ClientsManager::end(void) { return (this->_clients.end()); }

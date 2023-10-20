@@ -1,3 +1,4 @@
+#include "CliArgs.hpp"
 #include "Client.hpp"
 #include "Server.hpp"
 #include <csignal>
@@ -15,32 +16,37 @@ static inline void configureSignalHandlers(void) {
   sigaction(SIGTSTP, &mask, NULL);
 }
 
-static int parseArguments(int argc, char **argv) {
+static bool parseArguments(int argc, char **argv, CliArgs &args) {
   int port;
   std::stringstream ss;
 
-  if (argc != 2) {
+  if (argc != 3) {
     std::cerr << "Error: missing arguments." << std::endl;
-    return (-1);
+    return (false);
   }
   ss.str(argv[1]);
   if (!(ss >> port) || ss.fail() || !ss.eof()) {
     std::cerr << "Error: invalid argument: " << argv[1] << std::endl;
-    return (-1);
+    return (false);
   }
-  return (port);
+  args.port = port;
+  if (std::strlen(argv[2]) < 1) {
+    std::cerr << "Error: invalid argument: " << argv[2] << std::endl;
+    return (false);
+  }
+  args.password = std::string(argv[2]);
+  return (true);
 }
 
 int main(int argc, char **argv) {
-  int port;
+  CliArgs args;
   Server server;
 
-  port = parseArguments(argc, argv);
-  if (port == -1) {
-    std::cerr << "Usage: " << argv[0] << " PORT" << std::endl;
+  if (!parseArguments(argc, argv, args)) {
+    std::cerr << "Usage: " << argv[0] << " PORT PASSWORD" << std::endl;
     return (1);
   }
-  server = Server(port);
+  server = Server(args.port, args.password);
   configureSignalHandlers();
   if (server.run() == false) {
     std::cerr << "Error: failed to run server." << std::endl;
