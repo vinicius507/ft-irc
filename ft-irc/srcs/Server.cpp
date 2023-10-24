@@ -2,6 +2,7 @@
 #include "Message.hpp"
 #include "commands.hpp"
 #include "numericReplies.hpp"
+#include "Channel.hpp"
 #include <algorithm>
 #include <arpa/inet.h>
 #include <cerrno>
@@ -137,4 +138,21 @@ Client *Server::getClientByNickname(const std::string &nickname) {
 void Server::gracefulShutdown(int signal) {
   Server::_shouldExit = true;
   std::cerr << "\nReceived signal " << signal << ", shutting down the server." << std::endl;
+}
+
+Channel * Server::getChannel(std::string &channelName) {
+  std::map<std::string, Channel *>::iterator it;
+
+  it = this->_channels.find(channelName);
+  if (it == this->_channels.end()) {
+    return (NULL);
+  }
+  return (it->second);
+}
+
+void Server::createChannel(const std::string &channelName, const std::string &key, Client *client) {
+  Channel *channel = new Channel(channelName);
+  channel->setKey(key);
+  channel->addClient(client);
+  this->_channels.insert(std::pair<std::string, Channel *>(channelName, channel));
 }

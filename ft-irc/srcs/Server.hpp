@@ -31,13 +31,17 @@ class Server {
 
   static void gracefulShutdown(int signal);
 
+  Channel *getChannel(std::string &channelName);
+
+  void createChannel(const std::string &channelName, const std::string &key, Client *client);
+
   static bool _shouldExit;
 
   private:
   PollManager _pollFds;
   ServerSocket _socket;
   ClientsManager _clients;
-  std::map<std::string, Channel> _channels;
+  std::map<std::string, Channel *> _channels;
   const std::string _connectionPassword;
 };
 
