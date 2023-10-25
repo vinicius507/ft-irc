@@ -57,8 +57,7 @@ bool Server::run(void) {
     if (this->_pollFds.hasNewClientOnQueue()) {
       clientFd = this->_socket.acceptClient();
       if (clientFd != -1) {
-        this->_clients.addClient(clientFd);
-        this->_pollFds.addFd(clientFd);
+        this->handleNewClient(clientFd);
       } else {
         std::cerr << "Error: couldn't accept new client" << std::endl;
       }
@@ -75,6 +74,11 @@ bool Server::isConnectionPasswordValid(const std::string &connectionPassword) co
   return (this->_connectionPassword == connectionPassword);
 }
 
+void Server::handleNewClient(int clientFd) {
+  this->_clients.addClient(clientFd);
+  this->_pollFds.addFd(clientFd);
+}
+
 void Server::handleClientData(int clientFd) {
   Message msg;
   std::string::size_type crlf;
@@ -86,8 +90,7 @@ void Server::handleClientData(int clientFd) {
     // Intentional fallthrough
   case Client::ReadEof:
     std::cerr << "INFO: Client disconnected: " << clientFd << std::endl;
-    this->_pollFds.removeFd(clientFd);
-    this->_clients.disconnectClient(clientFd);
+    this->disconnectClient(client);
     break;
   case Client::ReadIn:
     std::string &buf = client->getBuffer();
@@ -105,6 +108,16 @@ void Server::handleClientData(int clientFd) {
       }
     }
     break;
+  }
+}
+
+void Server::disconnectClient(Client *client) {
+  std::map<std::string, Channel *>::iterator it;
+
+  this->_pollFds.removeFd(client->getFd());
+  this->_clients.disconnectClient(client->getFd());
+  for (it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+    it->second->removeClient(client);
   }
 }
 

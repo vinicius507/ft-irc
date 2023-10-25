@@ -21,7 +21,11 @@ class Server {
 
   bool run(void);
 
+  void handleNewClient(int clientFd);
+
   void handleClientData(int clientFd);
+
+  void disconnectClient(Client *client);
 
   void handleMessage(Client *client, Message &msg);
 
