@@ -18,6 +18,23 @@ std::vector<std::string> splitByComma(const std::string &data) {
   return (tokens);
 }
 
+bool isValidChannelName(const std::string &channelName) {
+  std::string::const_iterator it;
+
+  if (channelName.size() < 2) {
+    return (false);
+  }
+  if (channelName.at(0) != '#') {
+    return (false);
+  }
+  for (it = channelName.begin() + 1; it != channelName.end(); ++it) {
+    if (!std::isalnum(*it) && *it != '-' && *it != '_') {
+      return (false);
+    }
+  }
+  return (true);
+}
+
 void joinCommand(Server &server, Client *client, Message &msg) {
   Channel *channel;
   bool hasKeysParam = false;
@@ -45,7 +62,7 @@ void joinCommand(Server &server, Client *client, Message &msg) {
     if (hasKeysParam && i < keys.size()) {
       key = keys[i];
     }
-    if (channelName.at(0) != '#') {
+    if (isValidChannelName(channelName) == false) {
       client->send(ERR_NOSUCHCHANNEL(client->getNickname(), channelName));
       ++i;
       continue;
