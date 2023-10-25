@@ -3,9 +3,9 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-Client::Client(void) : _fd(-1) {}
+Client::Client(void) : _fd(-1), _authState(AuthNone), _quitSent(false) {}
 
-Client::Client(int fd) : _fd(fd), _authState(AuthNone) {}
+Client::Client(int fd) : _fd(fd), _authState(AuthNone), _quitSent(false) {}
 
 Client::Client(const Client &client) : _fd(client._fd) {}
 
@@ -61,3 +61,7 @@ Client::ReadEvent Client::read(void) {
 }
 
 void Client::send(const std::string &msg) { ::send(this->_fd, msg.c_str(), msg.size(), 0); }
+
+void Client::quitSent(void) { this->_quitSent = true; }
+
+bool Client::isQuitSent(void) const { return (this->_quitSent); }

@@ -50,6 +50,10 @@ class Client {
 
   void send(const std::string &msg);
 
+  void quitSent(void);
+
+  bool isQuitSent(void) const;
+
   private:
   const int _fd;
   std::string _buffer;
@@ -59,6 +63,7 @@ class Client {
   const std::string _username;
   const std::string _realname;
   const std::string _hostname;
+  bool _quitSent;
 };
 
 #endif

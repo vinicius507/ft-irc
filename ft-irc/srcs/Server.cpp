@@ -101,6 +101,10 @@ void Server::handleClientData(int clientFd) {
       try {
         msg = parseIrcMessage(data);
         this->handleMessage(client, msg);
+        if (client->isQuitSent()) {
+          this->disconnectClient(client);
+          break;
+        }
       } catch (std::invalid_argument &e) {
         std::cerr << "Debug: Ignoring malformed message: " << e.what() << std::endl;
       } catch (std::exception &e) {
@@ -137,6 +141,8 @@ void Server::handleMessage(Client *client, Message &msg) {
     joinCommand(*this, client, msg);
   } else if (msg.command == "PING") {
     client->send(RPL_PONG);
+  } else if (msg.command == "QUIT") {
+    quitCommand(*this, client, msg);
   } else {
     if (client->getAuthState() != AuthDone) {
       client->send(ERR_NOTREGISTERED("*"));
@@ -177,4 +183,14 @@ void Server::createChannel(const std::string &channelName, const std::string &ke
   channel->setKey(key);
   channel->addClient(client);
   this->_channels.insert(std::pair<std::string, Channel *>(channelName, channel));
+}
+
+void Server::sendToVisible(Client *client, const std::string &message) {
+  std::map<std::string, Channel *>::iterator it;
+
+  for (it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+    if (it->second->hasClient(client)) {
+      it->second->send(message);
+    }
+  }
 }
