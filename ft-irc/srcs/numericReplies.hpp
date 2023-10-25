@@ -15,6 +15,8 @@
 #define RPL_NAMREPLY(target, channel, nicknames) numericReply("353", target, "= " + channel + " :" + nicknames)
 #define RPL_ENDOFNAMES(target, channel) numericReply("366", target, channel + " :End of NAMES list")
 
+#define RPL_PONG "PONG ft-irc\r\n"
+
 #define ERR_NOSUCHCHANNEL(target, channel) numericReply("403", target, channel + " :No such channel")
 #define ERR_UNKNOWNCOMMAND(target, command) numericReply("421", target, command + " :Unknown command")
 #define ERR_NONICKNAMEGIVEN(target) numericReply("431", target, ":No nickname given")

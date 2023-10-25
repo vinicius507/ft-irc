@@ -135,6 +135,8 @@ void Server::handleMessage(Client *client, Message &msg) {
     userCommand(*this, client, msg);
   } else if (msg.command == "JOIN") {
     joinCommand(*this, client, msg);
+  } else if (msg.command == "PING") {
+    client->send(RPL_PONG);
   } else {
     if (client->getAuthState() != AuthDone) {
       client->send(ERR_NOTREGISTERED("*"));
