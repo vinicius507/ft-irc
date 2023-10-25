@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Channel.hpp"
 #include "Message.hpp"
 #include "commands.hpp"
 #include "numericReplies.hpp"
@@ -56,8 +57,7 @@ bool Server::run(void) {
     if (this->_pollFds.hasNewClientOnQueue()) {
       clientFd = this->_socket.acceptClient();
       if (clientFd != -1) {
-        this->_clients.addClient(clientFd);
-        this->_pollFds.addFd(clientFd);
+        this->handleNewClient(clientFd);
       } else {
         std::cerr << "Error: couldn't accept new client" << std::endl;
       }
@@ -74,6 +74,11 @@ bool Server::isConnectionPasswordValid(const std::string &connectionPassword) co
   return (this->_connectionPassword == connectionPassword);
 }
 
+void Server::handleNewClient(int clientFd) {
+  this->_clients.addClient(clientFd);
+  this->_pollFds.addFd(clientFd);
+}
+
 void Server::handleClientData(int clientFd) {
   Message msg;
   std::string::size_type crlf;
@@ -85,8 +90,7 @@ void Server::handleClientData(int clientFd) {
     // Intentional fallthrough
   case Client::ReadEof:
     std::cerr << "INFO: Client disconnected: " << clientFd << std::endl;
-    this->_pollFds.removeFd(clientFd);
-    this->_clients.disconnectClient(clientFd);
+    this->disconnectClient(client);
     break;
   case Client::ReadIn:
     std::string &buf = client->getBuffer();
@@ -107,6 +111,21 @@ void Server::handleClientData(int clientFd) {
   }
 }
 
+void Server::disconnectClient(Client *client) {
+  std::map<std::string, Channel *>::iterator it;
+
+  for (it = this->_channels.begin(); it != this->_channels.end();) {
+    it->second->removeClient(client);
+    if (it->second->getClientsCount() == 0) {
+      it = this->_channels.erase(it);
+      continue;
+    }
+    ++it;
+  }
+  this->_pollFds.removeFd(client->getFd());
+  this->_clients.disconnectClient(client->getFd());
+}
+
 void Server::handleMessage(Client *client, Message &msg) {
   if (msg.command == "PASS") {
     passCommand(*this, client, msg);
@@ -114,6 +133,8 @@ void Server::handleMessage(Client *client, Message &msg) {
     nickCommand(*this, client, msg);
   } else if (msg.command == "USER") {
     userCommand(*this, client, msg);
+  } else if (msg.command == "JOIN") {
+    joinCommand(*this, client, msg);
   } else {
     if (client->getAuthState() != AuthDone) {
       client->send(ERR_NOTREGISTERED("*"));
@@ -137,4 +158,21 @@ Client *Server::getClientByNickname(const std::string &nickname) {
 void Server::gracefulShutdown(int signal) {
   Server::_shouldExit = true;
   std::cerr << "\nReceived signal " << signal << ", shutting down the server." << std::endl;
+}
+
+Channel *Server::getChannel(std::string &channelName) {
+  std::map<std::string, Channel *>::iterator it;
+
+  it = this->_channels.find(channelName);
+  if (it == this->_channels.end()) {
+    return (NULL);
+  }
+  return (it->second);
+}
+
+void Server::createChannel(const std::string &channelName, const std::string &key, Client *client) {
+  Channel *channel = new Channel(channelName);
+  channel->setKey(key);
+  channel->addClient(client);
+  this->_channels.insert(std::pair<std::string, Channel *>(channelName, channel));
 }
