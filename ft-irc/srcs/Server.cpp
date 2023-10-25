@@ -114,15 +114,16 @@ void Server::handleClientData(int clientFd) {
 void Server::disconnectClient(Client *client) {
   std::map<std::string, Channel *>::iterator it;
 
-  this->_pollFds.removeFd(client->getFd());
-  this->_clients.disconnectClient(client->getFd());
-  for (it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+  for (it = this->_channels.begin(); it != this->_channels.end();) {
     it->second->removeClient(client);
     if (it->second->getClientsCount() == 0) {
-      delete it->second;
-      this->_channels.erase(it);
+      it = this->_channels.erase(it);
+      continue;
     }
+    ++it;
   }
+  this->_pollFds.removeFd(client->getFd());
+  this->_clients.disconnectClient(client->getFd());
 }
 
 void Server::handleMessage(Client *client, Message &msg) {
