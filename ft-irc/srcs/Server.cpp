@@ -1,8 +1,8 @@
 #include "Server.hpp"
+#include "Channel.hpp"
 #include "Message.hpp"
 #include "commands.hpp"
 #include "numericReplies.hpp"
-#include "Channel.hpp"
 #include <algorithm>
 #include <arpa/inet.h>
 #include <cerrno>
@@ -115,6 +115,8 @@ void Server::handleMessage(Client *client, Message &msg) {
     nickCommand(*this, client, msg);
   } else if (msg.command == "USER") {
     userCommand(*this, client, msg);
+  } else if (msg.command == "JOIN") {
+    joinCommand(*this, client, msg);
   } else {
     if (client->getAuthState() != AuthDone) {
       client->send(ERR_NOTREGISTERED("*"));
@@ -140,7 +142,7 @@ void Server::gracefulShutdown(int signal) {
   std::cerr << "\nReceived signal " << signal << ", shutting down the server." << std::endl;
 }
 
-Channel * Server::getChannel(std::string &channelName) {
+Channel *Server::getChannel(std::string &channelName) {
   std::map<std::string, Channel *>::iterator it;
 
   it = this->_channels.find(channelName);

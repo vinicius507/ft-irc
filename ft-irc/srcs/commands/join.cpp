@@ -23,7 +23,7 @@ void joinCommand(Server &server, Client *client, Message &msg) {
   bool hasKeysParam = false;
   std::string channelName, key;
   std::vector<std::string>::size_type i;
-  std::vector<std::string> channels, keys;
+  std::vector<std::string> channelNames, keys;
 
   if (client->getAuthState() < AuthDone) {
     client->send(ERR_NOTREGISTERED(client->getNickname()));
@@ -33,28 +33,29 @@ void joinCommand(Server &server, Client *client, Message &msg) {
     client->send(ERR_NEEDMOREPARAMS(client->getNickname(), msg.command));
     return;
   }
-  channels = splitByComma(msg.params[0]);
+  channelNames = splitByComma(msg.params[0]);
   hasKeysParam = (msg.params.size() > 1);
   if (hasKeysParam) {
     keys = splitByComma(msg.params[1]);
   }
   i = 0;
-  while (i < channels.size()) {
-    channelName = channels[i];
-    if (channelName.at(0) != '#') {
-      client->send(ERR_NOSUCHCHANNEL(client->getNickname(), channels[i]));
-      continue;
-    }
+  while (i < channelNames.size()) {
+    channelName = channelNames[i];
     key = "";
     if (hasKeysParam && i < keys.size()) {
       key = keys[i];
-    } 
+    }
+    if (channelName.at(0) != '#') {
+      client->send(ERR_NOSUCHCHANNEL(client->getNickname(), channelName));
+      ++i;
+      continue;
+    }
     channel = server.getChannel(channelName);
     if (channel == NULL) {
       server.createChannel(channelName, key, client);
     } else {
       channel->join(client, key);
     }
-    i++;
+    ++i;
   }
 }

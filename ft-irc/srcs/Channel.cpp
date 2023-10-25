@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 #include "numericReplies.hpp"
 
-Channel::Channel(const std::string &name) : _name(name) , _key("") {}
+Channel::Channel(const std::string &name) : _name(name), _key("") {}
 
 Channel::Channel(const Channel &other) : _name(other._name) {}
 
@@ -18,9 +18,18 @@ Channel &Channel::operator=(const Channel &other) {
 }
 
 void Channel::addClient(Client *client) {
-  if (client != NULL) {
-    this->_clients.push_back(client);
+  if (client == NULL) {
+    return;
   }
+  this->_clients.push_back(client);
+  this->send(":" + client->getNickname() + " JOIN " + this->getName());
+  if (this->hasTopic()) {
+    client->send(RPL_TOPIC(client->getNickname(), this->getName(), this->getTopic()));
+  } else {
+    client->send(RPL_NOTOPIC(client->getNickname(), this->getName()));
+  }
+  client->send(RPL_NAMREPLY(client->getNickname(), this->getName(), this->getClientsNicknames()));
+  client->send(RPL_ENDOFNAMES(client->getNickname(), this->getName()));
 }
 
 void Channel::removeClient(Client *client) {
@@ -86,12 +95,4 @@ void Channel::join(Client *client, const std::string &key) {
     return;
   }
   this->addClient(client);
-  this->send(":" + client->getNickname() + " JOIN " + this->getName());
-  if (this->hasTopic()) {
-    client->send(RPL_TOPIC(client->getNickname(), this->getName(), this->getTopic()));
-  } else {
-    client->send(RPL_NOTOPIC(client->getNickname(), this->getName()));
-  }
-  client->send(RPL_NAMREPLY(client->getNickname(), this->getName(), this->getClientsNicknames()));
-  client->send(RPL_ENDOFNAMES(client->getNickname(), this->getName()));
 }
