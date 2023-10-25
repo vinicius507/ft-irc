@@ -96,3 +96,5 @@ void Channel::join(Client *client, const std::string &key) {
   }
   this->addClient(client);
 }
+
+unsigned int Channel::getClientsCount(void) const { return (this->_clients.size()); }

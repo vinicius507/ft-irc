@@ -40,6 +40,8 @@ class Channel {
 
   std::string getClientsNicknames(void) const;
 
+  unsigned int getClientsCount(void) const;
+
   private:
   const std::string _name;
   const std::string _key;

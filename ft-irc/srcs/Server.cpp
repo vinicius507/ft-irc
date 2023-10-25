@@ -118,6 +118,10 @@ void Server::disconnectClient(Client *client) {
   this->_clients.disconnectClient(client->getFd());
   for (it = this->_channels.begin(); it != this->_channels.end(); ++it) {
     it->second->removeClient(client);
+    if (it->second->getClientsCount() == 0) {
+      delete it->second;
+      this->_channels.erase(it);
+    }
   }
 }
 
