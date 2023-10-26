@@ -35,6 +35,17 @@ std::string &Client::getBuffer(void) { return (this->_buffer); }
 
 const std::string &Client::getNickname(void) const { return (this->_nickname); }
 
+std::string Client::getPrefix(void) const {
+  std::string prefix;
+
+  prefix = this->_nickname;
+  prefix += "!";
+  prefix += this->_username;
+  prefix += "@";
+  prefix += this->_hostname;
+  return (prefix);
+}
+
 void Client::setNickname(const std::string &nickname) { const_cast<std::string &>(this->_nickname) = nickname; }
 void Client::setUsername(const std::string &username) { const_cast<std::string &>(this->_username) = username; }
 void Client::setRealname(const std::string &realname) { const_cast<std::string &>(this->_realname) = realname; }

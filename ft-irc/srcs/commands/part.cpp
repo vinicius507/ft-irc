@@ -33,7 +33,7 @@ void partCommand(Server &server, Client *client, Message &message) {
       client->send(ERR_NOTONCHANNEL(client->getNickname(), channelName));
       continue;
     }
-    channel->send(MSG_PART(client->getNickname(), channel->getName()));
+    channel->send(MSG_PART(client->getPrefix(), channel->getName()));
     channel->removeClient(client);
   }
 }
