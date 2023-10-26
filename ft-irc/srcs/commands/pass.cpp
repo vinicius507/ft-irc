@@ -3,7 +3,7 @@
 #include "../Client.hpp"
 #include "../Message.hpp"
 #include "../Server.hpp"
-#include "../numericReplies.hpp"
+#include "../serverReplies.hpp"
 
 void passCommand(Server &server, Client *client, Message &msg) {
   std::string connectionPassword;

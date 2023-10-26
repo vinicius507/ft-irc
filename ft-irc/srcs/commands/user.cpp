@@ -2,7 +2,7 @@
 
 #include "../Client.hpp"
 #include "../Message.hpp"
-#include "../numericReplies.hpp"
+#include "../serverReplies.hpp"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>

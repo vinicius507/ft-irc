@@ -4,7 +4,7 @@
 #include "../Client.hpp"
 #include "../Message.hpp"
 #include "../Server.hpp"
-#include "../numericReplies.hpp"
+#include "../serverReplies.hpp"
 #include "utils.hpp"
 
 void joinCommand(Server &server, Client *client, Message &msg) {

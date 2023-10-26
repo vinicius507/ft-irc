@@ -3,7 +3,7 @@
 #include "../Client.hpp"
 #include "../Message.hpp"
 #include "../Server.hpp"
-#include "../numericReplies.hpp"
+#include "../serverReplies.hpp"
 
 void quitCommand(Server &server, Client *client, Message &message) {
   std::string quitMessage;
@@ -17,6 +17,6 @@ void quitCommand(Server &server, Client *client, Message &message) {
   } else {
     quitMessage = client->getNickname() + " has quit: " + message.params[0] + ".";
   }
-  server.sendToVisible(client, ":" + client->getNickname() + " QUIT :" + quitMessage);
+  server.sendToVisible(MSG_QUIT(client->getNickname(), quitMessage));
   client->quitSent();
 }

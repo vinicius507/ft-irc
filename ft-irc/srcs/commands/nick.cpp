@@ -3,7 +3,7 @@
 #include "../Client.hpp"
 #include "../Message.hpp"
 #include "../Server.hpp"
-#include "../numericReplies.hpp"
+#include "../serverReplies.hpp"
 
 static bool isNicknameValid(const std::string &nickname) {
   char _char;

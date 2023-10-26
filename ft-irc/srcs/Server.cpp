@@ -2,7 +2,7 @@
 #include "Channel.hpp"
 #include "Message.hpp"
 #include "commands.hpp"
-#include "numericReplies.hpp"
+#include "serverReplies.hpp"
 #include <algorithm>
 #include <arpa/inet.h>
 #include <cerrno>
@@ -140,7 +140,7 @@ void Server::handleMessage(Client *client, Message &msg) {
   } else if (msg.command == "JOIN") {
     joinCommand(*this, client, msg);
   } else if (msg.command == "PING") {
-    client->send(RPL_PONG);
+    client->send(MSG_PONG);
   } else if (msg.command == "QUIT") {
     quitCommand(*this, client, msg);
   } else if ((msg.command == "PART")) {

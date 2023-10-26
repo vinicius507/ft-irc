@@ -1,5 +1,5 @@
 #include "Channel.hpp"
-#include "numericReplies.hpp"
+#include "serverReplies.hpp"
 
 Channel::Channel(const std::string &name) : _name(name), _key("") {}
 
@@ -22,7 +22,7 @@ void Channel::addClient(Client *client) {
     return;
   }
   this->_clients.push_back(client);
-  this->send(":" + client->getNickname() + " JOIN " + this->getName());
+  this->send(MSG_JOIN(client->getNickname(), this->getName())));
   if (this->hasTopic()) {
     client->send(RPL_TOPIC(client->getNickname(), this->getName(), this->getTopic()));
   } else {

@@ -3,6 +3,10 @@
 
 #include <string>
 
+#define MSG_PONG "PONG ft-irc\r\n"
+#define MSG_QUIT(prefix, message) std::string(":" + prefix + " QUIT :" + message + "\r\n")
+#define MSG_PART(prefix, channel) std::string(":" + prefix + " PART " + channel + "\r\n")
+
 #define numericReply(numeric, target, message) std::string(":ft-irc ") + numeric + " " + target + " " + message + "\r\n"
 
 #define RPL_WELCOME(target, user, host)                                                                                \
@@ -14,8 +18,6 @@
 #define RPL_TOPIC(target, channel, topic) numericReply("332", target, channel + " :" + topic)
 #define RPL_NAMREPLY(target, channel, nicknames) numericReply("353", target, "= " + channel + " :" + nicknames)
 #define RPL_ENDOFNAMES(target, channel) numericReply("366", target, channel + " :End of NAMES list")
-
-#define RPL_PONG "PONG ft-irc\r\n"
 
 #define ERR_NOSUCHCHANNEL(target, channel) numericReply("403", target, channel + " :No such channel")
 #define ERR_UNKNOWNCOMMAND(target, command) numericReply("421", target, command + " :Unknown command")

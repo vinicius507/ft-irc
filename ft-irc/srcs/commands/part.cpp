@@ -3,7 +3,7 @@
 #include "../Client.hpp"
 #include "../Message.hpp"
 #include "../Server.hpp"
-#include "../numericReplies.hpp"
+#include "../serverReplies.hpp"
 #include "utils.hpp"
 
 void partCommand(Server &server, Client *client, Message &message) {
@@ -33,7 +33,7 @@ void partCommand(Server &server, Client *client, Message &message) {
       client->send(ERR_NOTONCHANNEL(client->getNickname(), channelName));
       continue;
     }
-    channel->send(":" + client->getNickname() + " PART " + channel->getName() + "\r\n");
+    channel->send(MSG_PART(client->getNickname(), channel->getName()));
     channel->removeClient(client);
   }
 }
