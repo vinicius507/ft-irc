@@ -7,14 +7,23 @@ Client::Client(void) : _fd(-1), _authState(AuthNone), _quitSent(false) {}
 
 Client::Client(int fd) : _fd(fd), _authState(AuthNone), _quitSent(false) {}
 
-Client::Client(const Client &client) : _fd(client._fd) {}
+Client::Client(const Client &client)
+    : _fd(client._fd), _authState(AuthNone), _nickname(client._nickname), _username(client._username),
+      _hostname(client._hostname), _quitSent(client._quitSent) {}
 
 Client &Client::operator=(const Client &client) {
   if (this != &client) {
     if (this->_fd != -1) {
       close(this->_fd);
     }
+    this->_buffer = client._buffer;
+    this->_authState = client._authState;
+    this->_quitSent = client._quitSent;
     const_cast<int &>(this->_fd) = client._fd;
+    const_cast<std::string &>(this->_nickname) = client._nickname;
+    const_cast<std::string &>(this->_username) = client._username;
+    const_cast<std::string &>(this->_realname) = client._realname;
+    const_cast<std::string &>(this->_hostname) = client._hostname;
   }
   return (*this);
 }
