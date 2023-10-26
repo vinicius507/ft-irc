@@ -21,4 +21,6 @@ void quitCommand(Server &server, Client *client, Message &msg);
 
 void partCommand(Server &server, Client *client, Message &msg);
 
+void privmsgCommand(Server &server, Client *client, Message &msg);
+
 #endif

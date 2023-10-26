@@ -7,6 +7,7 @@
 #define MSG_JOIN(prefix, channel) std::string(":" + prefix + " JOIN " + channel + "\r\n")
 #define MSG_QUIT(prefix, message) std::string(":" + prefix + " QUIT :" + message + "\r\n")
 #define MSG_PART(prefix, channel) std::string(":" + prefix + " PART " + channel + "\r\n")
+#define MSG_PRIVMSG(prefix, target, message) std::string(":" + prefix + " PRIVMSG " + target + " :" + message + "\r\n")
 
 #define numericReply(numeric, target, message) std::string(":ft-irc ") + numeric + " " + target + " " + message + "\r\n"
 
@@ -20,7 +21,10 @@
 #define RPL_NAMREPLY(target, channel, nicknames) numericReply("353", target, "= " + channel + " :" + nicknames)
 #define RPL_ENDOFNAMES(target, channel) numericReply("366", target, channel + " :End of NAMES list")
 
+#define ERR_NOSUCHNICK(target, nickname) numericReply("401", target, nickname + " :No such nick")
 #define ERR_NOSUCHCHANNEL(target, channel) numericReply("403", target, channel + " :No such channel")
+#define ERR_NORECIPIENT(target, command) numericReply("411", target, command + " :No recipient given")
+#define ERR_NOTEXTTOSEND(target) numericReply("412", target, ":No text to send")
 #define ERR_UNKNOWNCOMMAND(target, command) numericReply("421", target, command + " :Unknown command")
 #define ERR_NONICKNAMEGIVEN(target) numericReply("431", target, ":No nickname given")
 #define ERR_ERRONEUSNICKNAME(target, nickname) numericReply("432", target, nickname + " :Erroneous nickname")
