@@ -17,6 +17,6 @@ void quitCommand(Server &server, Client *client, Message &message) {
   } else {
     quitMessage = client->getNickname() + " has quit: " + message.params[0] + ".";
   }
-  server.sendToVisible(MSG_QUIT(client->getNickname(), quitMessage));
+  server.sendToVisible(client, MSG_QUIT(client->getNickname(), quitMessage));
   client->quitSent();
 }

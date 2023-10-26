@@ -22,7 +22,7 @@ void Channel::addClient(Client *client) {
     return;
   }
   this->_clients.push_back(client);
-  this->send(MSG_JOIN(client->getPrefix(), this->getName())));
+  this->send(MSG_JOIN(client->getPrefix(), this->getName()));
   if (this->hasTopic()) {
     client->send(RPL_TOPIC(client->getNickname(), this->getName(), this->getTopic()));
   } else {
