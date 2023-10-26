@@ -143,6 +143,8 @@ void Server::handleMessage(Client *client, Message &msg) {
     client->send(RPL_PONG);
   } else if (msg.command == "QUIT") {
     quitCommand(*this, client, msg);
+  } else if ((msg.command == "PART")) {
+    partCommand(*this, client, msg);
   } else {
     if (client->getAuthState() != AuthDone) {
       client->send(ERR_NOTREGISTERED("*"));

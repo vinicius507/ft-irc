@@ -17,6 +17,8 @@ void userCommand(Server &server, Client *client, Message &msg);
 
 void joinCommand(Server &server, Client *client, Message &msg);
 
-void quitCommand(Server &server, Client *client, Message &message);
+void quitCommand(Server &server, Client *client, Message &msg);
+
+void partCommand(Server &server, Client *client, Message &msg);
 
 #endif
