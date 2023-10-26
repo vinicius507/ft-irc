@@ -121,10 +121,10 @@ void Server::disconnectClient(Client *client) {
   for (it = this->_channels.begin(); it != this->_channels.end();) {
     it->second->removeClient(client);
     if (it->second->getClientsCount() == 0) {
-      it = this->_channels.erase(it);
-      continue;
+      this->_channels.erase(it++);
+    } else {
+      ++it;
     }
-    ++it;
   }
   this->_pollFds.removeFd(client->getFd());
   this->_clients.disconnectClient(client->getFd());
