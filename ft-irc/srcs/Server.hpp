@@ -37,6 +37,8 @@ class Server {
 
   Channel *getChannel(std::string &channelName);
 
+  std::vector<Channel *> getChannelsWithClient(Client *client) const;
+
   void createChannel(const std::string &channelName, const std::string &key, Client *client);
 
   void sendToVisible(Client *client, const std::string &message);

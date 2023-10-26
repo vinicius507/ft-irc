@@ -42,6 +42,8 @@ class Channel {
 
   unsigned int getClientsCount(void) const;
 
+  void sendToVisible(Client *client, const std::string &message) const;
+
   private:
   const std::string _name;
   const std::string _key;

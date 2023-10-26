@@ -98,3 +98,13 @@ void Channel::join(Client *client, const std::string &key) {
 }
 
 unsigned int Channel::getClientsCount(void) const { return (this->_clients.size()); }
+
+void Channel::sendToVisible(Client *client, const std::string &message) const {
+  std::vector<Client *>::const_iterator it;
+
+  for (it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+    if (*it != client) {
+      (*it)->send(message);
+    }
+  }
+}

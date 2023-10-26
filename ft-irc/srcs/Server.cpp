@@ -178,6 +178,21 @@ Channel *Server::getChannel(std::string &channelName) {
   return (it->second);
 }
 
+std::vector<Channel *> Server::getChannelsWithClient(Client *client) const {
+  std::vector<Channel *> channels;
+  std::map<std::string, Channel *>::const_iterator it;
+
+  if (client == NULL) {
+    return (channels);
+  }
+  for (it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+    if (it->second->hasClient(client)) {
+      channels.push_back(it->second);
+    }
+  }
+  return (channels);
+}
+
 void Server::createChannel(const std::string &channelName, const std::string &key, Client *client) {
   Channel *channel = new Channel(channelName);
   channel->setKey(key);
@@ -186,11 +201,11 @@ void Server::createChannel(const std::string &channelName, const std::string &ke
 }
 
 void Server::sendToVisible(Client *client, const std::string &message) {
-  std::map<std::string, Channel *>::iterator it;
+  std::vector<Channel *> channels;
+  std::vector<Channel *>::iterator it;
 
-  for (it = this->_channels.begin(); it != this->_channels.end(); ++it) {
-    if (it->second->hasClient(client)) {
-      it->second->send(message);
-    }
+  channels = this->getChannelsWithClient(client);
+  for (it = channels.begin(); it != channels.end(); ++it) {
+    (*it)->sendToVisible(client, message);
   }
 }
