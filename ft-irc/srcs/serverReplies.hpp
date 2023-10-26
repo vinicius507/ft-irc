@@ -4,6 +4,7 @@
 #include <string>
 
 #define MSG_PONG "PONG ft-irc\r\n"
+#define MSG_JOIN(prefix, channel) std::string(":" + prefix + " JOIN " + channel + "\r\n")
 #define MSG_QUIT(prefix, message) std::string(":" + prefix + " QUIT :" + message + "\r\n")
 #define MSG_PART(prefix, channel) std::string(":" + prefix + " PART " + channel + "\r\n")
 
