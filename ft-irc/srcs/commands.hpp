@@ -23,4 +23,6 @@ void partCommand(Server &server, Client *client, Message &msg);
 
 void privmsgCommand(Server &server, Client *client, Message &msg);
 
+void noticeCommand(Server &server, Client *client, Message &msg);
+
 #endif

@@ -8,6 +8,7 @@
 #define MSG_QUIT(prefix, message) std::string(":" + prefix + " QUIT :" + message + "\r\n")
 #define MSG_PART(prefix, channel) std::string(":" + prefix + " PART " + channel + "\r\n")
 #define MSG_PRIVMSG(prefix, target, message) std::string(":" + prefix + " PRIVMSG " + target + " :" + message + "\r\n")
+#define MSG_NOTICE(prefix, target, message) std::string(":" + prefix + " NOTICE " + target + " :" + message + "\r\n")
 
 #define numericReply(numeric, target, message) std::string(":ft-irc ") + numeric + " " + target + " " + message + "\r\n"
 

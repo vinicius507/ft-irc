@@ -147,6 +147,8 @@ void Server::handleMessage(Client *client, Message &msg) {
     partCommand(*this, client, msg);
   } else if ((msg.command == "PRIVMSG")) {
     privmsgCommand(*this, client, msg);
+  } else if ((msg.command == "NOTICE")) {
+    noticeCommand(*this, client, msg);
   } else {
     if (client->getAuthState() != AuthDone) {
       client->send(ERR_NOTREGISTERED("*"));
