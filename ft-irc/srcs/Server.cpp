@@ -131,31 +131,18 @@ void Server::disconnectClient(Client *client) {
 }
 
 void Server::handleMessage(Client *client, Message &msg) {
-  if (msg.command == "PASS") {
-    passCommand(*this, client, msg);
-  } else if (msg.command == "NICK") {
-    nickCommand(*this, client, msg);
-  } else if (msg.command == "USER") {
-    userCommand(*this, client, msg);
-  } else if (msg.command == "JOIN") {
-    joinCommand(*this, client, msg);
-  } else if (msg.command == "PING") {
-    client->send(MSG_PONG);
-  } else if (msg.command == "QUIT") {
-    quitCommand(*this, client, msg);
-  } else if ((msg.command == "PART")) {
-    partCommand(*this, client, msg);
-  } else if ((msg.command == "PRIVMSG")) {
-    privmsgCommand(*this, client, msg);
-  } else if ((msg.command == "NOTICE")) {
-    noticeCommand(*this, client, msg);
-  } else {
+  CommandFn cmdHandler;
+
+  cmdHandler = getCommandHandler(msg);
+  if (cmdHandler == NULL) {
     if (client->getAuthState() != AuthDone) {
       client->send(ERR_NOTREGISTERED("*"));
       return;
     }
     client->send(ERR_UNKNOWNCOMMAND(client->getNickname(), msg.command));
+    return;
   }
+  cmdHandler(*this, client, msg);
 }
 
 Client *Server::getClientByNickname(const std::string &nickname) {

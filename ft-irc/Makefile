@@ -8,10 +8,11 @@ BUILD_DIR = ./build
 TESTS_DIR = ./tests
 
 SRCS := main.cpp Server.cpp ServerSocket.cpp PollManager.cpp \
-		Client.cpp Message.cpp ClientsManager.cpp commands/pass.cpp \
-		commands/nick.cpp commands/user.cpp commands/join.cpp Channel.cpp \
-		commands/quit.cpp commands/part.cpp commands/privmsg.cpp \
-		commands/notice.cpp commands/utils.cpp
+		Client.cpp Message.cpp ClientsManager.cpp commands.cpp \
+		commands/pass.cpp commands/nick.cpp commands/user.cpp \
+		commands/join.cpp commands/ping.cpp Channel.cpp commands/quit.cpp \
+		commands/part.cpp commands/privmsg.cpp commands/notice.cpp \
+		commands/utils.cpp
 TEST_SRCS := $(filter-out main.cpp,$(SRCS)) test_main.cpp
 
 OBJS := $(addprefix $(BUILD_DIR)/,$(SRCS:%.cpp=%.o))
