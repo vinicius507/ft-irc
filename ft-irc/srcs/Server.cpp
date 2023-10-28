@@ -187,11 +187,12 @@ std::vector<Channel *> Server::getChannelsWithClient(Client *client) const {
   return (channels);
 }
 
-void Server::createChannel(const std::string &channelName, const std::string &key, Client *client) {
+Channel *Server::createChannel(const std::string &channelName, const std::string &key, Client *client) {
   Channel *channel = new Channel(channelName);
   channel->setKey(key);
   channel->addClient(client);
   this->_channels.insert(std::pair<std::string, Channel *>(channelName, channel));
+  return (channel);
 }
 
 void Server::sendToVisible(Client *client, const std::string &message) {

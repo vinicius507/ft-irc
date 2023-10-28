@@ -41,7 +41,9 @@ void joinCommand(Server &server, Client *client, Message &msg) {
     }
     channel = server.getChannel(channelName);
     if (channel == NULL) {
-      server.createChannel(channelName, key, client);
+      channel = server.createChannel(channelName, key, client);
+      channel->addOperator(client);
+      
     } else {
       channel->join(client, key);
     }

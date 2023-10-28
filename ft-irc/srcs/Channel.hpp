@@ -42,6 +42,10 @@ class Channel {
 
   unsigned int getClientsCount(void) const;
 
+  void addOperator(Client *client);
+
+  bool isOperator(Client *client) const;
+
   void sendToVisible(Client *client, const std::string &message) const;
 
   private:
@@ -49,6 +53,7 @@ class Channel {
   const std::string _key;
   const std::string _topic;
   std::vector<Client *> _clients;
+  std::vector<Client *> _operators;
 };
 
 #endif

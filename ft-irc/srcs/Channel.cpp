@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 #include "serverReplies.hpp"
 
-Channel::Channel(const std::string &name) : _name(name), _key("") {}
+Channel::Channel(const std::string &name) : _name(name), _key(""), _operators(0) {}
 
 Channel::Channel(const Channel &other) : _name(other._name) {}
 
@@ -67,6 +67,24 @@ bool Channel::hasTopic() const { return (this->_topic.empty() == false); }
 bool Channel::isKeyProtected() const { return (this->_key.empty() == false); }
 
 bool Channel::isKeyValid(const std::string &key) const { return (this->_key == key); }
+
+void Channel::addOperator(Client *client) {
+  if (client == NULL) {
+    return;
+  }
+  this->_operators.push_back(client);
+}
+
+bool Channel::isOperator(Client *client) const {
+  std::vector<Client *>::const_iterator it;
+
+  for (it = this->_operators.begin(); it != this->_operators.end(); it++) {
+    if (*it == client) {
+      return (true);
+    }
+  }
+  return (false);
+}
 
 std::string Channel::getClientsNicknames(void) const {
   std::vector<Client *>::const_iterator it;

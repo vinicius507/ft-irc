@@ -9,6 +9,8 @@
 #define MSG_PART(prefix, channel) std::string(":" + prefix + " PART " + channel + "\r\n")
 #define MSG_PRIVMSG(prefix, target, message) std::string(":" + prefix + " PRIVMSG " + target + " :" + message + "\r\n")
 #define MSG_NOTICE(prefix, target, message) std::string(":" + prefix + " NOTICE " + target + " :" + message + "\r\n")
+#define MSG_KICK(prefix, channel, target, message) std::string(":" + prefix + " KICK " + channel + " " + target + " :" + message + "\r\n")
+
 
 #define numericReply(numeric, target, message) std::string(":ft-irc ") + numeric + " " + target + " " + message + "\r\n"
 
@@ -36,5 +38,6 @@
 #define ERR_ALREADYREGISTRED(target) numericReply("462", target, ":You may not reregister")
 #define ERR_PASSWSMISMATCH(target) numericReply("464", target, ":Password Incorrect")
 #define ERR_BADCHANNELKEY(target, channel) numericReply("475", target, channel + " :Cannot join channel (+k)")
+#define ERR_CHANOPRIVSNEEDED(target, channel) numericReply("482", target, channel + " :You're not channel operator")
 
 #endif

@@ -25,6 +25,8 @@ void privmsgCommand(Server &server, Client *client, Message &msg);
 
 void noticeCommand(Server &server, Client *client, Message &msg);
 
+void kickCommand(Server &server, Client *client, Message &msg);
+
 typedef void (*CommandFn)(Server &server, Client *client, Message &msg);
 
 enum Command {
@@ -37,7 +39,8 @@ enum Command {
   CMD_PART,
   CMD_PRIVMSG,
   CMD_NOTICE,
-  CMD_COUNT,
+  CMD_KICK,
+  CMD_COUNT,  
 };
 
 CommandFn getCommandHandler(Message &msg);
