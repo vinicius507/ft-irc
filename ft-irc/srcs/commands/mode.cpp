@@ -10,7 +10,7 @@
 static bool handleChangeModes(Channel *channel, char op, std::string modes) {
     bool didChange = false;
     bool isSetOp = op == '+';
-    std::string::size_type i;
+    std::string::size_type i = 0;
 
     while (i < modes.size()) {
         if (modes[i] == 't' && (isSetOp != channel->isTopicRestricted())) {
