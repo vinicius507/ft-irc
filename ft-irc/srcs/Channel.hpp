@@ -4,6 +4,12 @@
 #include "Client.hpp"
 #include <vector>
 
+#define CHANNELMODES_CHARS std::string("t")
+
+enum ChannelModeFlags {
+  CHANMODES_TOPIC = 0b1,
+};
+
 class Channel {
   public:
   Channel(const std::string &name);
@@ -55,9 +61,16 @@ class Channel {
 
   void sendToVisible(Client *client, const std::string &message) const;
 
+  void setRestrictTopic(bool restrictTopic);
+
+  bool isTopicRestricted(void) const;
+
+  std::string getModes(void) const;
+
   private:
   const std::string _name;
   const std::string _key;
+  ChannelModeFlags _modes;
   const std::string _topic;
   std::vector<Client *> _clients;
   std::vector<Client *> _operators;

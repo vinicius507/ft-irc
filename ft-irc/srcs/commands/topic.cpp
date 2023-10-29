@@ -38,7 +38,7 @@ void topicCommand(Server &server, Client *client, Message &msg) {
     return;
   }
 
-  if (!channel->isOperator(client)) {
+  if (channel->isTopicRestricted() && !channel->isOperator(client)) {
     client->send(ERR_CHANOPRIVSNEEDED(client->getNickname(), channel->getName()));
     return;
   } else {

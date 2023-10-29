@@ -187,3 +187,27 @@ void Channel::sendToVisible(Client *client, const std::string &message) const {
     }
   }
 }
+
+void Channel::setRestrictTopic(bool restrictTopic) {
+  int modes = this->_modes;
+
+  if (restrictTopic) {
+    modes |= CHANMODES_TOPIC;
+  } else if ((modes & CHANMODES_TOPIC) != 0) {
+    modes ^= CHANMODES_TOPIC;
+  }
+  this->_modes = static_cast<ChannelModeFlags>(modes);
+}
+
+bool Channel::isTopicRestricted(void) const {
+  return ((this->_modes & CHANMODES_TOPIC) != 0);
+}
+
+std::string Channel::getModes(void) const {
+  std::string modes;
+
+  if (this->isTopicRestricted()) {
+    modes += "t";
+  }
+  return (modes);
+}

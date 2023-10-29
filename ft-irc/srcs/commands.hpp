@@ -31,6 +31,8 @@ void topicCommand(Server &server, Client *client, Message &msg);
 
 void inviteCommand(Server &server, Client *client, Message &msg);
 
+void modeCommand(Server &server, Client *client, Message &msg);
+
 typedef void (*CommandFn)(Server &server, Client *client, Message &msg);
 
 enum Command {
@@ -46,6 +48,7 @@ enum Command {
   CMD_KICK,
   CMD_TOPIC,
   CMD_INVITE,
+  CMD_MODE,
   CMD_COUNT,  
 };
 

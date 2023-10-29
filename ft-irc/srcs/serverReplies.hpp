@@ -12,7 +12,7 @@
 #define MSG_KICK(prefix, channel, target, message) std::string(":" + prefix + " KICK " + channel + " " + target + " :" + message + "\r\n")
 #define MSG_TOPIC(prefix, channel, topic) std::string(":" + prefix + " TOPIC " + channel + " :" + topic + "\r\n")
 #define MSG_INVITE(prefix, channel, nickname) std::string(":" + prefix + " INVITE " + nickname + " " + channel + "\r\n")
-
+#define MSG_MODE(prefix, target, modes) std::string(":" + prefix + " MODE " + target + " " + modes + "\r\n")
 
 #define numericReply(numeric, target, message) std::string(":ft-irc ") + numeric + " " + target + " " + message + "\r\n"
 
@@ -26,6 +26,7 @@
 #define RPL_NAMREPLY(target, channel, nicknames) numericReply("353", target, "= " + channel + " :" + nicknames)
 #define RPL_ENDOFNAMES(target, channel) numericReply("366", target, channel + " :End of NAMES list")
 #define RPL_INVITING(channel, nickname) numericReply("341", channel, + " " + nickname)
+#define RPL_CHANNELMODEIS(target, channel, modes) numericReply("324", target, channel + " +" + modes)
 
 #define ERR_NOSUCHNICK(target, nickname) numericReply("401", target, nickname + " :No such nick")
 #define ERR_NOSUCHCHANNEL(target, channel) numericReply("403", target, channel + " :No such channel")
@@ -43,5 +44,6 @@
 #define ERR_BADCHANNELKEY(target, channel) numericReply("475", target, channel + " :Cannot join channel (+k)")
 #define ERR_CHANOPRIVSNEEDED(target, channel) numericReply("482", target, channel + " :You're not channel operator")
 #define ERR_USERONCHANNEL(target, nickname, channel) numericReply("443", target, nickname + " " + channel + " :is already on channel")
+#define ERR_UNKNOWNMODE(target, mode) numericReply("472", target, mode + " :is unknown mode char to me")
 
 #endif
