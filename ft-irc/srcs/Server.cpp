@@ -116,16 +116,22 @@ void Server::handleClientData(int clientFd) {
 }
 
 void Server::disconnectClient(Client *client) {
+  Channel *channel;
   std::map<std::string, Channel *>::iterator it;
 
   for (it = this->_channels.begin(); it != this->_channels.end();) {
-    it->second->removeClient(client);
-    if (it->second->getClientsCount() == 0) {
-      delete it->second;
-      this->_channels.erase(it++);
-    } else {
-      ++it;
+    channel = it->second;
+    if (channel->isGuest(client)) {
+      channel->removeGuest(client);
+    } else if (channel->hasClient(client)) {
+      channel->removeClient(client);
+      if (channel->getClientsCount() == 0) {
+        ++it;
+        this->removeChannel(channel);
+        continue;
+      }
     }
+    ++it;
   }
   this->_pollFds.removeFd(client->getFd());
   this->_clients.disconnectClient(client->getFd());
@@ -193,6 +199,16 @@ Channel *Server::createChannel(const std::string &channelName, const std::string
   channel->addClient(client);
   this->_channels.insert(std::pair<std::string, Channel *>(channelName, channel));
   return (channel);
+}
+
+void Server::removeChannel(Channel *channel) {
+  std::map<std::string, Channel *>::iterator it;
+
+  if (channel == NULL) {
+    return;
+  }
+  this->_channels.erase(channel->getName());
+  delete channel;
 }
 
 void Server::sendToVisible(Client *client, const std::string &message) {

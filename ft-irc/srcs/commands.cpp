@@ -5,7 +5,7 @@
 #include <string>
 
 static const std::string cmdNames[CMD_COUNT] = {
-    "PASS", "NICK", "USER", "JOIN", "PING", "QUIT", "PART", "PRIVMSG", "NOTICE", "KICK", "TOPIC"};
+    "PASS", "NICK", "USER", "JOIN", "PING", "QUIT", "PART", "PRIVMSG", "NOTICE", "KICK", "TOPIC", "INVITE"};
 
 static const CommandFn _commands[CMD_COUNT] = {
     passCommand,
@@ -19,6 +19,7 @@ static const CommandFn _commands[CMD_COUNT] = {
     noticeCommand,
     kickCommand,
     topicCommand,
+    inviteCommand,
 };
 
 CommandFn getCommandHandler(Message &msg) {

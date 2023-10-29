@@ -1,6 +1,8 @@
 #include "Channel.hpp"
 #include "serverReplies.hpp"
 
+#include <algorithm>
+
 Channel::Channel(const std::string &name) : _name(name), _key(""), _operators(0) {}
 
 Channel::Channel(const Channel &other) : _name(other._name) {}
@@ -39,7 +41,7 @@ void Channel::removeClient(Client *client) {
     if (*it == client) {
       this->_clients.erase(it);
       if (this->isOperator(client)) {
-        this->_operators.erase(it);
+        this->removeOperator(client);
       }
       break;
     }
@@ -71,11 +73,59 @@ bool Channel::isKeyProtected() const { return (this->_key.empty() == false); }
 
 bool Channel::isKeyValid(const std::string &key) const { return (this->_key == key); }
 
+
 void Channel::addOperator(Client *client) {
   if (client == NULL) {
     return;
   }
   this->_operators.push_back(client);
+}
+
+void Channel::removeOperator(Client *client) {
+  std::vector<Client *>::iterator it, begin, end;
+
+  if (client == NULL) {
+    return;
+  }
+  begin = this->_operators.begin();
+  end = this->_operators.end();
+  it = std::find(begin, end, client);
+  if (it != end) {
+    this->_operators.erase(it);
+  }
+}
+
+void Channel::addGuest(Client *client) {
+  if (client == NULL) {
+    return;
+  }
+  this->_guests.push_back(client);
+}
+
+void Channel::removeGuest(Client *client) {
+  std::vector<Client *>::iterator it;
+
+  if (client == NULL) {
+    return;
+  }
+  it = std::find(this->_guests.begin(), this->_guests.end(), client);
+  if (it != this->_guests.end()) {
+    this->_guests.erase(it);
+  }
+}
+
+bool Channel::isGuest(Client *client) const {
+  std::vector<Client *>::const_iterator begin, end;
+
+  if (client == NULL) {
+    return (false);
+  }
+  begin = this->_guests.begin();
+  end = this->_guests.end();
+  if (std::find(begin, end, client) == end) {
+    return (false);
+  } 
+  return (true);
 }
 
 bool Channel::isOperator(Client *client) const {
@@ -109,6 +159,11 @@ void Channel::send(const std::string &message) const {
 
 void Channel::join(Client *client, const std::string &key) {
   if (client == NULL) {
+    return;
+  }
+  if (this->isGuest(client)) {
+    this->addClient(client);
+    this->removeGuest(client);
     return;
   }
   if (this->isKeyProtected() && !this->isKeyValid(key)) {

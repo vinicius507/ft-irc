@@ -43,7 +43,6 @@ void joinCommand(Server &server, Client *client, Message &msg) {
     if (channel == NULL) {
       channel = server.createChannel(channelName, key, client);
       channel->addOperator(client);
-      
     } else {
       channel->join(client, key);
     }

@@ -41,6 +41,8 @@ class Server {
 
   Channel *createChannel(const std::string &channelName, const std::string &key, Client *client);
 
+  void removeChannel(Channel *channel);
+
   void sendToVisible(Client *client, const std::string &message);
 
   static bool _shouldExit;

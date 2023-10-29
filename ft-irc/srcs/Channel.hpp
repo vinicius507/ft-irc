@@ -33,7 +33,6 @@ class Channel {
   bool isKeyProtected(void) const;
 
   bool isKeyValid(const std::string &key) const;
-
   void send(const std::string &message) const;
 
   void join(Client *client, const std::string &key);
@@ -44,7 +43,15 @@ class Channel {
 
   void addOperator(Client *client);
 
+  void addGuest(Client *client);
+
+  bool isGuest(Client *client) const;
+
+  void removeGuest(Client *client);
+
   bool isOperator(Client *client) const;
+
+  void removeOperator(Client *client);
 
   void sendToVisible(Client *client, const std::string &message) const;
 
@@ -54,6 +61,7 @@ class Channel {
   const std::string _topic;
   std::vector<Client *> _clients;
   std::vector<Client *> _operators;
+  std::vector<Client *> _guests;
 };
 
 #endif
