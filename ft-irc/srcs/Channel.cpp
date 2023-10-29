@@ -38,6 +38,9 @@ void Channel::removeClient(Client *client) {
   for (it = this->_clients.begin(); it != this->_clients.end(); it++) {
     if (*it == client) {
       this->_clients.erase(it);
+      if (this->isOperator(client)) {
+        this->_operators.erase(it);
+      }
       break;
     }
   }

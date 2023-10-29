@@ -10,6 +10,7 @@
 #define MSG_PRIVMSG(prefix, target, message) std::string(":" + prefix + " PRIVMSG " + target + " :" + message + "\r\n")
 #define MSG_NOTICE(prefix, target, message) std::string(":" + prefix + " NOTICE " + target + " :" + message + "\r\n")
 #define MSG_KICK(prefix, channel, target, message) std::string(":" + prefix + " KICK " + channel + " " + target + " :" + message + "\r\n")
+#define MSG_TOPIC(prefix, channel, topic) std::string(":" + prefix + " TOPIC " + channel + " :" + topic + "\r\n")
 
 
 #define numericReply(numeric, target, message) std::string(":ft-irc ") + numeric + " " + target + " " + message + "\r\n"
@@ -23,6 +24,8 @@
 #define RPL_TOPIC(target, channel, topic) numericReply("332", target, channel + " :" + topic)
 #define RPL_NAMREPLY(target, channel, nicknames) numericReply("353", target, "= " + channel + " :" + nicknames)
 #define RPL_ENDOFNAMES(target, channel) numericReply("366", target, channel + " :End of NAMES list")
+
+
 
 #define ERR_NOSUCHNICK(target, nickname) numericReply("401", target, nickname + " :No such nick")
 #define ERR_NOSUCHCHANNEL(target, channel) numericReply("403", target, channel + " :No such channel")

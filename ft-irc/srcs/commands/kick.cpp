@@ -48,7 +48,7 @@ void kickCommand(Server &server, Client *client, Message &message) {
       continue;
     }
     target = server.getClientByNickname(targetNickname);
-    if (channel->hasClient(target) == false) {
+    if  (channel->hasClient(target) == false) {
       client->send(ERR_NOTONCHANNEL(targetNickname, channelName));
       ++i;
       continue;
