@@ -144,6 +144,9 @@ std::string Channel::getClientsNicknames(void) const {
   std::string nicknames;
 
   for (it = this->_clients.begin(); it != this->_clients.end(); it++) {
+    if (this->isOperator(*it)) {
+      nicknames += "@";
+    }
     nicknames += (*it)->getNickname() + " ";
   }
   return (nicknames);

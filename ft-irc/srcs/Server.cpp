@@ -196,6 +196,7 @@ std::vector<Channel *> Server::getChannelsWithClient(Client *client) const {
 Channel *Server::createChannel(const std::string &channelName, const std::string &key, Client *client) {
   Channel *channel = new Channel(channelName);
   channel->setKey(key);
+  channel->addOperator(client);
   channel->addClient(client);
   this->_channels.insert(std::pair<std::string, Channel *>(channelName, channel));
   return (channel);
