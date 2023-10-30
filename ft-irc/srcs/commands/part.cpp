@@ -35,5 +35,8 @@ void partCommand(Server &server, Client *client, Message &message) {
     }
     channel->send(MSG_PART(client->getPrefix(), channel->getName()));
     channel->removeClient(client);
+    if (channel->getClientsCount() == 0) {
+      server.removeChannel(channel);
+    }
   }
 }
