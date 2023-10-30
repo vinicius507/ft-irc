@@ -3,9 +3,9 @@
 
 #include <algorithm>
 
-Channel::Channel(const std::string &name) : _name(name), _key(""), _operators(0) {}
+Channel::Channel(const std::string &name) : _name(name), _modes(CHANMODES_NONE) {}
 
-Channel::Channel(const Channel &other) : _name(other._name) {}
+Channel::Channel(const Channel &other) : _name(other._name), _modes(CHANMODES_NONE) {}
 
 Channel::~Channel() {}
 
@@ -73,7 +73,6 @@ bool Channel::isKeyProtected() const { return (this->_key.empty() == false); }
 
 bool Channel::isKeyValid(const std::string &key) const { return (this->_key == key); }
 
-
 void Channel::addOperator(Client *client) {
   if (client == NULL) {
     return;
@@ -124,7 +123,7 @@ bool Channel::isGuest(Client *client) const {
   end = this->_guests.end();
   if (std::find(begin, end, client) == end) {
     return (false);
-  } 
+  }
   return (true);
 }
 
@@ -169,6 +168,10 @@ void Channel::join(Client *client, const std::string &key) {
     this->removeGuest(client);
     return;
   }
+  if (this->isInviteOnly()) {
+    client->send(ERR_INVITEONLYCHAN(client->getNickname(), this->getName()));
+    return;
+  }
   if (this->isKeyProtected() && !this->isKeyValid(key)) {
     client->send(ERR_BADCHANNELKEY(client->getNickname(), this->getName()));
     return;
@@ -199,15 +202,29 @@ void Channel::setRestrictTopic(bool restrictTopic) {
   this->_modes = static_cast<ChannelModeFlags>(modes);
 }
 
-bool Channel::isTopicRestricted(void) const {
-  return ((this->_modes & CHANMODES_TOPIC) != 0);
+bool Channel::isTopicRestricted(void) const { return ((this->_modes & CHANMODES_TOPIC) != 0); }
+
+void Channel::setInviteOnly(bool inviteOnly) {
+  int modes = this->_modes;
+
+  if (inviteOnly) {
+    modes |= CHANMODES_INVITE;
+  } else if ((modes & CHANMODES_INVITE) != 0) {
+    modes ^= CHANMODES_INVITE;
+  }
+  this->_modes = static_cast<ChannelModeFlags>(modes);
 }
+
+bool Channel::isInviteOnly(void) const { return ((this->_modes & CHANMODES_INVITE) != 0); }
 
 std::string Channel::getModes(void) const {
   std::string modes;
 
   if (this->isTopicRestricted()) {
     modes += "t";
+  }
+  if (this->isInviteOnly()) {
+    modes += "i";
   }
   return (modes);
 }

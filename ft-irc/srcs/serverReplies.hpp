@@ -9,7 +9,8 @@
 #define MSG_PART(prefix, channel) std::string(":" + prefix + " PART " + channel + "\r\n")
 #define MSG_PRIVMSG(prefix, target, message) std::string(":" + prefix + " PRIVMSG " + target + " :" + message + "\r\n")
 #define MSG_NOTICE(prefix, target, message) std::string(":" + prefix + " NOTICE " + target + " :" + message + "\r\n")
-#define MSG_KICK(prefix, channel, target, message) std::string(":" + prefix + " KICK " + channel + " " + target + " :" + message + "\r\n")
+#define MSG_KICK(prefix, channel, target, message)                                                                     \
+  std::string(":" + prefix + " KICK " + channel + " " + target + " :" + message + "\r\n")
 #define MSG_TOPIC(prefix, channel, topic) std::string(":" + prefix + " TOPIC " + channel + " :" + topic + "\r\n")
 #define MSG_INVITE(prefix, channel, nickname) std::string(":" + prefix + " INVITE " + nickname + " " + channel + "\r\n")
 #define MSG_MODE(prefix, target, modes) std::string(":" + prefix + " MODE " + target + " " + modes + "\r\n")
@@ -25,7 +26,7 @@
 #define RPL_TOPIC(target, channel, topic) numericReply("332", target, channel + " :" + topic)
 #define RPL_NAMREPLY(target, channel, nicknames) numericReply("353", target, "= " + channel + " :" + nicknames)
 #define RPL_ENDOFNAMES(target, channel) numericReply("366", target, channel + " :End of NAMES list")
-#define RPL_INVITING(channel, nickname) numericReply("341", channel, + " " + nickname)
+#define RPL_INVITING(channel, nickname) numericReply("341", channel, +" " + nickname)
 #define RPL_CHANNELMODEIS(target, channel, modes) numericReply("324", target, channel + " +" + modes)
 
 #define ERR_NOSUCHNICK(target, nickname) numericReply("401", target, nickname + " :No such nick")
@@ -41,9 +42,11 @@
 #define ERR_NEEDMOREPARAMS(target, command) numericReply("461", target, command + " :Not enough parameters")
 #define ERR_ALREADYREGISTRED(target) numericReply("462", target, ":You may not reregister")
 #define ERR_PASSWSMISMATCH(target) numericReply("464", target, ":Password Incorrect")
+#define ERR_INVITEONLYCHAN(target, channel) numericReply("473", target, channel + " :Cannot join channel (+i)")
 #define ERR_BADCHANNELKEY(target, channel) numericReply("475", target, channel + " :Cannot join channel (+k)")
 #define ERR_CHANOPRIVSNEEDED(target, channel) numericReply("482", target, channel + " :You're not channel operator")
-#define ERR_USERONCHANNEL(target, nickname, channel) numericReply("443", target, nickname + " " + channel + " :is already on channel")
+#define ERR_USERONCHANNEL(target, nickname, channel)                                                                   \
+  numericReply("443", target, nickname + " " + channel + " :is already on channel")
 #define ERR_UNKNOWNMODE(target, mode) numericReply("472", target, mode + " :is unknown mode char to me")
 
 #endif

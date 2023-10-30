@@ -4,10 +4,12 @@
 #include "Client.hpp"
 #include <vector>
 
-#define CHANNELMODES_CHARS std::string("t")
+#define CHANNELMODES_CHARS std::string("ti")
 
 enum ChannelModeFlags {
-  CHANMODES_TOPIC = 0b1,
+  CHANMODES_NONE = 0,
+  CHANMODES_TOPIC = 1 << 0,
+  CHANMODES_INVITE = 1 << 1,
 };
 
 class Channel {
@@ -64,6 +66,10 @@ class Channel {
   void setRestrictTopic(bool restrictTopic);
 
   bool isTopicRestricted(void) const;
+
+  void setInviteOnly(bool inviteOnly);
+
+  bool isInviteOnly(void) const;
 
   std::string getModes(void) const;
 
