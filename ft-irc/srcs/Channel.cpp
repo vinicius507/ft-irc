@@ -59,7 +59,7 @@ bool Channel::hasClient(Client *client) const {
   return (false);
 }
 
-Client *Channel::getClientByNickname(const std::string &nickname) const {
+Client *Channel::getClient(const std::string &nickname) const {
   std::vector<Client *>::const_iterator it;
 
   for (it = this->_clients.begin(); it != this->_clients.end(); ++it) {
@@ -86,6 +86,9 @@ bool Channel::isKeyValid(const std::string &key) const { return (this->_key == k
 
 void Channel::addOperator(Client *client) {
   if (client == NULL) {
+    return;
+  }
+  if (this->isOperator(client)) {
     return;
   }
   this->_operators.push_back(client);

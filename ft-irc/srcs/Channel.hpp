@@ -28,7 +28,7 @@ class Channel {
 
   bool hasClient(Client *client) const;
 
-  Client *getClientByNickname(const std::string &nickname) const;
+  Client *getClient(const std::string &nickname) const;
 
   const std::string &getName(void) const;
 
