@@ -7,45 +7,86 @@
 #include "../serverReplies.hpp"
 #include "utils.hpp"
 
-static bool handleChangeModes(Client *client, Channel *channel, char op, std::string modes, std::string modeParams) {
-  bool didChange = false;
+static bool handleTopicMode(Channel *channel, char op) {
+  bool isSetOp = (op == '+');
+
+  if (isSetOp == channel->isTopicRestricted()) {
+    return (false);
+  }
+  channel->setRestrictTopic(isSetOp);
+  return (true);
+}
+
+static bool handleInviteMode(Channel *channel, char op) {
+  bool isSetOp = (op == '+');
+
+  if (isSetOp == channel->isInviteOnly()) {
+    return (false);
+  }
+  channel->setInviteOnly(isSetOp);
+  return (true);
+}
+
+static bool handleChanOpMode(Channel *channel, Client *client, char op, const std::string &nickname) {
+  Client *target;
   bool isSetOp = op == '+';
+
+  target = channel->getClientByNickname(nickname);
+  if (target == NULL) {
+    client->send(ERR_USERNOTINCHANNEL(client->getNickname(), nickname, channel->getName()));
+    return (false);
+  }
+  if (isSetOp) {
+    channel->addOperator(client);
+  } else {
+    channel->removeOperator(client);
+  }
+  return (true);
+}
+
+static void setMode(Channel *channel, Client *client, Message &msg) {
+  char op = '+';
+  std::string ops("+-");
   std::string::iterator it;
+  std::string finalModes, finalModeParams;
+  std::string modes = msg.params.at(1);
 
   for (it = modes.begin(); it != modes.end(); ++it) {
-    if (*it == 't' && (isSetOp != channel->isTopicRestricted())) {
-      channel->setRestrictTopic(isSetOp);
-      didChange = true;
+    if (ops.find(*it) != std::string::npos) {
+      op = *it;
+      finalModes += op;
       continue;
     }
-    if (*it == 'i' && (isSetOp != channel->isInviteOnly())) {
-      channel->setInviteOnly(isSetOp);
-      didChange = true;
-      continue;
-    }
-    if (*it == 'o') {
-      Client *target = channel->getClientByNickname(modeParams);
-      if (target == NULL) {
-        client->send(ERR_USERNOTINCHANNEL(client->getNickname(), modeParams, channel->getName()));
-        continue;
-      }
-      if (isSetOp != channel->isOperator(target)) {
-        if (isSetOp) {
-          channel->addOperator(target);
-        } else {
-          channel->removeOperator(target);
+    while (it != modes.end() && ops.find(*it) == std::string::npos) {
+      switch (*it) {
+      case 't':
+        if (handleTopicMode(channel, op)) {
+          finalModes += 't';
         }
-        didChange = true;
+        break;
+      case 'i':
+        if (handleInviteMode(channel, op)) {
+          finalModes += 'i';
+        }
+        break;
+      case 'o':
+        if (handleChanOpMode(channel, client, op, msg.params.at(2))) {
+          finalModes += 'o';
+          finalModeParams += msg.params.at(2);
+        }
+        break;
       }
+      ++it;
     }
   }
-  return (didChange);
+  if (!finalModes.empty()) {
+    channel->send(MSG_MODE(client->getNickname(), channel->getName(), finalModes + " " + finalModeParams));
+  }
 }
 
 void modeCommand(Server &server, Client *client, Message &msg) {
   Channel *channel;
-  std::string::size_type idx, modeCount;
-  std::string modes, modeParams, batch, changed;
+  std::string::size_type idx;
 
   if (client->getAuthState() != AuthDone) {
     client->send(ERR_NOTREGISTERED(client->getNickname()));
@@ -69,31 +110,5 @@ void modeCommand(Server &server, Client *client, Message &msg) {
     client->send(ERR_UNKNOWNMODE(client->getNickname(), msg.params.at(1).at(idx)));
     return;
   }
-  char op = '+';
-  batch = std::string();
-  changed = std::string();
-  modes = msg.params.at(1);
-  modeCount = 0;
-  modeParams = std::string();
-  for (idx = 0; idx < modes.size(); ++idx) {
-    char c = modes[idx];
-    if (c == '+') {
-      op = '+';
-      continue;
-    }
-    if (c == '-') {
-      op = '-';
-      continue;
-    }
-    std::string::size_type endOfBatch = modes.find_first_of("+-", idx);
-    std::string modeParam = (msg.params.size() > modeCount + 2) ? msg.params.at(2 + modeCount++) : "";
-    batch = modes.substr(idx, endOfBatch);
-    if (handleChangeModes(client, channel, op, batch, modeParam)) {
-      changed += op + batch;
-      modeParams += modeParam + " ";
-    }
-  }
-  if (!changed.empty()) {
-    channel->send(MSG_MODE(client->getNickname(), channel->getName(), changed + " " + modeParams));
-  }
+  setMode(channel, client, msg);
 }
