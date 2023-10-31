@@ -59,6 +59,17 @@ bool Channel::hasClient(Client *client) const {
   return (false);
 }
 
+Client *Channel::getClientByNickname(const std::string &nickname) const {
+  std::vector<Client *>::const_iterator it;
+
+  for (it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+    if ((*it)->getNickname() == nickname) {
+      return (*it);
+    }
+  }
+  return (NULL);
+}
+
 const std::string &Channel::getName(void) const { return (this->_name); }
 
 const std::string &Channel::getTopic(void) const { return (this->_topic); }

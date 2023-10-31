@@ -7,29 +7,45 @@
 #include "../serverReplies.hpp"
 #include "utils.hpp"
 
-static bool handleChangeModes(Channel *channel, char op, std::string modes) {
+static bool handleChangeModes(Client *client, Channel *channel, char op, std::string modes, std::string modeParams) {
   bool didChange = false;
   bool isSetOp = op == '+';
-  std::string::size_type i = 0;
+  std::string::iterator it;
 
-  while (i < modes.size()) {
-    if (modes[i] == 't' && (isSetOp != channel->isTopicRestricted())) {
+  for (it = modes.begin(); it != modes.end(); ++it) {
+    if (*it == 't' && (isSetOp != channel->isTopicRestricted())) {
       channel->setRestrictTopic(isSetOp);
       didChange = true;
+      continue;
     }
-    if (modes[i] == 'i' && (isSetOp != channel->isInviteOnly())) {
+    if (*it == 'i' && (isSetOp != channel->isInviteOnly())) {
       channel->setInviteOnly(isSetOp);
       didChange = true;
+      continue;
     }
-    ++i;
+    if (*it == 'o') {
+      Client *target = channel->getClientByNickname(modeParams);
+      if (target == NULL) {
+        client->send(ERR_USERNOTINCHANNEL(client->getNickname(), modeParams, channel->getName()));
+        continue;
+      }
+      if (isSetOp != channel->isOperator(target)) {
+        if (isSetOp) {
+          channel->addOperator(target);
+        } else {
+          channel->removeOperator(target);
+        }
+        didChange = true;
+      }
+    }
   }
   return (didChange);
 }
 
 void modeCommand(Server &server, Client *client, Message &msg) {
   Channel *channel;
-  std::string modes, batch, changed;
-  std::string::size_type idx;
+  std::string::size_type idx, modeCount;
+  std::string modes, modeParams, batch, changed;
 
   if (client->getAuthState() != AuthDone) {
     client->send(ERR_NOTREGISTERED(client->getNickname()));
@@ -54,9 +70,11 @@ void modeCommand(Server &server, Client *client, Message &msg) {
     return;
   }
   char op = '+';
-  batch = "";
-  changed = "";
+  batch = std::string();
+  changed = std::string();
   modes = msg.params.at(1);
+  modeCount = 0;
+  modeParams = std::string();
   for (idx = 0; idx < modes.size(); ++idx) {
     char c = modes[idx];
     if (c == '+') {
@@ -68,12 +86,14 @@ void modeCommand(Server &server, Client *client, Message &msg) {
       continue;
     }
     std::string::size_type endOfBatch = modes.find_first_of("+-", idx);
+    std::string modeParam = (msg.params.size() > modeCount + 2) ? msg.params.at(2 + modeCount++) : "";
     batch = modes.substr(idx, endOfBatch);
-    if (handleChangeModes(channel, op, batch)) {
+    if (handleChangeModes(client, channel, op, batch, modeParam)) {
       changed += op + batch;
+      modeParams += modeParam + " ";
     }
   }
   if (!changed.empty()) {
-    channel->send(MSG_MODE(client->getNickname(), channel->getName(), changed));
+    channel->send(MSG_MODE(client->getNickname(), channel->getName(), changed + " " + modeParams));
   }
 }

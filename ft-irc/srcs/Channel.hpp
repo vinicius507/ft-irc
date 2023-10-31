@@ -4,7 +4,7 @@
 #include "Client.hpp"
 #include <vector>
 
-#define CHANNELMODES_CHARS std::string("ti")
+#define CHANNELMODES_CHARS std::string("tio")
 
 enum ChannelModeFlags {
   CHANMODES_NONE = 0,
@@ -27,6 +27,8 @@ class Channel {
   void removeClient(Client *client);
 
   bool hasClient(Client *client) const;
+
+  Client *getClientByNickname(const std::string &nickname) const;
 
   const std::string &getName(void) const;
 
