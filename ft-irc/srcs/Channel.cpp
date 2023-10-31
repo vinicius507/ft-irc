@@ -174,6 +174,9 @@ void Channel::join(Client *client, const std::string &key) {
   if (client == NULL) {
     return;
   }
+  if (this->hasClient(client)) {
+    return;
+  }
   if (this->isGuest(client)) {
     this->addClient(client);
     this->removeGuest(client);
