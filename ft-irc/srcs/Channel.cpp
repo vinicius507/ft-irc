@@ -232,7 +232,7 @@ void Channel::setInviteOnly(bool inviteOnly) {
 bool Channel::isInviteOnly(void) const { return ((this->_modes & CHANMODES_INVITE) != 0); }
 
 std::string Channel::getModes(void) const {
-  std::string modes;
+  std::string modes, modeParams;
 
   if (this->isTopicRestricted()) {
     modes += "t";
@@ -240,5 +240,12 @@ std::string Channel::getModes(void) const {
   if (this->isInviteOnly()) {
     modes += "i";
   }
-  return (modes);
+  if (this->isKeyProtected()) {
+    modes += "k";
+    modeParams += this->_key;
+  }
+  if (modeParams.empty()) {
+    return (modes);
+  }
+  return (std::string(modes + " " + modeParams));
 }
