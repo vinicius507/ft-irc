@@ -52,6 +52,21 @@ static bool handleChanOpMode(Channel *channel, Client *client, bool isSetMode, s
   return (true);
 }
 
+static void handleKeyMode(Channel *channel, bool isSetOp, std::string key) {
+  if (isSetOp) {
+    channel->setKey(key);
+  } else {
+    channel->setKey("");
+  }
+}
+
+static std::map<char, void (*)(Channel *, bool, std::string)> getModeHandlersWithParam() {
+  std::map<char, void (*)(Channel *, bool, std::string)> modeHandlersWithParam;
+
+  modeHandlersWithParam['k'] = handleKeyMode;
+  return (modeHandlersWithParam);
+}
+
 static std::map<char, bool (*)(Channel *, bool)> getModeFlagHandlers() {
   std::map<char, bool (*)(Channel *, bool)> modeFlagHandlers;
 
@@ -66,6 +81,7 @@ static void setMode(Channel *channel, Client *client, Message &msg) {
   std::string finalMode, finalModeParam;
   std::vector<std::string> modeParams(msg.params.begin() + 2, msg.params.end());
   std::map<char, bool (*)(Channel *, bool)> modeFlagHandlers = getModeFlagHandlers();
+  std::map<char, void (*)(Channel *, bool, std::string)> modeHandlersWithParam = getModeHandlersWithParam();
 
   isSetOp = true;
   std::string::iterator i, j;
@@ -81,6 +97,12 @@ static void setMode(Channel *channel, Client *client, Message &msg) {
           batchChanges += "o";
           finalModeParam += modeParams.at(0);
         }
+        modeParams.erase(modeParams.begin());
+      }
+      if (modeHandlersWithParam.find(*j) != modeHandlersWithParam.end()) {
+        batchChanges += *j;
+        finalModeParam += isSetOp ? modeParams.at(0) : "*";
+        modeHandlersWithParam[*j](channel, isSetOp, modeParams.at(0));
         modeParams.erase(modeParams.begin());
       }
       if (modeFlagHandlers.find(*j) != modeFlagHandlers.end() && modeFlagHandlers[*j](channel, isSetOp)) {

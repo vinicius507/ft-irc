@@ -4,7 +4,7 @@
 #include "Client.hpp"
 #include <vector>
 
-#define CHANNELMODES_CHARS std::string("tio")
+#define CHANNELMODES_CHARS std::string("tiok")
 
 enum ChannelModeFlags {
   CHANMODES_NONE = 0,
