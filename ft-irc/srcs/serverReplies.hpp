@@ -28,6 +28,7 @@
 #define RPL_ENDOFNAMES(target, channel) numericReply("366", target, channel + " :End of NAMES list")
 #define RPL_INVITING(channel, nickname) numericReply("341", channel, +" " + nickname)
 #define RPL_CHANNELMODEIS(target, channel, modes) numericReply("324", target, channel + " +" + modes)
+#define RPL_YOUREOPER(target) numericReply("381", target, ":You are now an IRC operator")
 
 #define ERR_NOSUCHNICK(target, nickname) numericReply("401", target, nickname + " :No such nick")
 #define ERR_NOSUCHCHANNEL(target, channel) numericReply("403", target, channel + " :No such channel")
@@ -50,5 +51,5 @@
 #define ERR_USERONCHANNEL(target, nickname, channel)                                                                   \
   numericReply("443", target, nickname + " " + channel + " :is already on channel")
 #define ERR_UNKNOWNMODE(target, mode) numericReply("472", target, mode + " :is unknown mode char to me")
-
+#define ERR_NOOPERHOST(target) numericReply("491", target, ":No O-lines for your host")
 #endif

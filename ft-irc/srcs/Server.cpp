@@ -221,3 +221,18 @@ void Server::sendToVisible(Client *client, const std::string &message) {
     (*it)->sendToVisible(client, message);
   }
 }
+
+bool Server::verifyOper(const std::string &name, const std::string &password) const {
+  return (name == OPER_NAME && password == OPER_PASS);
+}
+
+bool Server::verifyOperHost(const std::string &host) const { return (host == OPER_HOST); }
+
+void Server::setOper(const Client *client) { this->_oper = client; }
+
+bool Server::isOper(const Client *client) const {
+  if (client == NULL) {
+    return (false);
+  }
+  return (this->_oper == client);
+}

@@ -1,4 +1,4 @@
-#ifndef SERVER_HPP
+ #ifndef SERVER_HPP
 #define SERVER_HPP
 
 #include "Channel.hpp"
@@ -6,6 +6,10 @@
 #include "Message.hpp"
 #include "PollManager.hpp"
 #include "ServerSocket.hpp"
+
+#define OPER_PASS "password"
+#define OPER_NAME "name"
+#define OPER_HOST "locahost"
 
 class Server {
   public:
@@ -45,6 +49,14 @@ class Server {
 
   void sendToVisible(Client *client, const std::string &message);
 
+  bool verifyOper(const std::string &name, const std::string &password) const;
+  bool verifyOperHost(const std::string &host) const;
+  
+  void setOper(const Client *client);
+  bool isOper(const Client *client) const;
+
+
+
   static bool _shouldExit;
 
   private:
@@ -53,6 +65,7 @@ class Server {
   ClientsManager _clients;
   std::map<std::string, Channel *> _channels;
   const std::string _connectionPassword;
+  const Client *_oper;
 };
 
 #endif

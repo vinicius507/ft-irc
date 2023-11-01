@@ -13,7 +13,7 @@ SRCS := main.cpp Server.cpp ServerSocket.cpp PollManager.cpp \
 		commands/join.cpp commands/ping.cpp Channel.cpp commands/quit.cpp \
 		commands/part.cpp commands/privmsg.cpp commands/notice.cpp \
 		commands/utils.cpp commands/kick.cpp commands/topic.cpp commands/invite.cpp \
-		commands/mode.cpp
+		commands/mode.cpp commands/oper.cpp
 TEST_SRCS := $(filter-out main.cpp,$(SRCS)) test_main.cpp
 
 OBJS := $(addprefix $(BUILD_DIR)/,$(SRCS:%.cpp=%.o))
