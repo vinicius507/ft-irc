@@ -6,6 +6,7 @@
 #include "../Server.hpp"
 #include "../serverReplies.hpp"
 #include "utils.hpp"
+#include <algorithm>
 
 static bool requiresModeParam(char mode) { return (std::string("okl").find(mode) != std::string::npos); }
 
