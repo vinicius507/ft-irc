@@ -3,9 +3,9 @@
 
 #include <algorithm>
 
-Channel::Channel(const std::string &name) : _name(name), _modes(CHANMODES_NONE) {}
+Channel::Channel(const std::string &name) : _name(name), _modes(CHANMODES_NONE), _limit(0) {}
 
-Channel::Channel(const Channel &other) : _name(other._name), _modes(CHANMODES_NONE) {}
+Channel::Channel(const Channel &other) : _name(other._name), _modes(CHANMODES_NONE), _limit(0) {}
 
 Channel::~Channel() {}
 
@@ -14,6 +14,7 @@ Channel &Channel::operator=(const Channel &other) {
     const_cast<std::string &>(this->_name) = other._name;
     const_cast<std::string &>(this->_key) = other._key;
     const_cast<std::string &>(this->_topic) = other._topic;
+    const_cast<unsigned int &>(this->_limit) = other._limit;
     this->_clients = other._clients;
   }
   return *this;
@@ -189,6 +190,10 @@ void Channel::join(Client *client, const std::string &key) {
     client->send(ERR_INVITEONLYCHAN(client->getNickname(), this->getName()));
     return;
   }
+  if (this->isFull()) {
+    client->send(ERR_CHANNELISFULL(client->getNickname(), this->_name));
+    return;
+  }
   if (this->isKeyProtected() && !this->isKeyValid(key)) {
     client->send(ERR_BADCHANNELKEY(client->getNickname(), this->getName()));
     return;
@@ -234,6 +239,19 @@ void Channel::setInviteOnly(bool inviteOnly) {
 
 bool Channel::isInviteOnly(void) const { return ((this->_modes & CHANMODES_INVITE) != 0); }
 
+void Channel::setLimit(unsigned int limit) {
+  const_cast<unsigned int &>(this->_limit) = limit;
+}
+
+bool Channel::isFull(void) const {
+  if (this->_limit == 0) {
+    return (false);
+  }
+  return (this->_limit <= this->_clients.size());
+}
+
+unsigned int Channel::getLimit(void) const { return this->_limit; }
+
 std::string Channel::getModes(void) const {
   std::string modes, modeParams;
 
@@ -246,6 +264,10 @@ std::string Channel::getModes(void) const {
   if (this->isKeyProtected()) {
     modes += "k";
     modeParams += this->_key;
+  }
+  if (this->getLimit() > 0) {
+    modes += "l";
+    modeParams += this->getLimit();
   }
   if (modeParams.empty()) {
     return (modes);

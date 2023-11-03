@@ -52,4 +52,5 @@
   numericReply("443", target, nickname + " " + channel + " :is already on channel")
 #define ERR_UNKNOWNMODE(target, mode) numericReply("472", target, mode + " :is unknown mode char to me")
 #define ERR_NOOPERHOST(target) numericReply("491", target, ":No O-lines for your host")
+#define ERR_CHANNELISFULL(target, channel) numericReply("471", target, channel + " :Cannot join channel (+l)")
 #endif

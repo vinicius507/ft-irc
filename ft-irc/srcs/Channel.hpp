@@ -4,7 +4,7 @@
 #include "Client.hpp"
 #include <vector>
 
-#define CHANNELMODES_CHARS std::string("tiok")
+#define CHANNELMODES_CHARS std::string("tiokl")
 
 enum ChannelModeFlags {
   CHANMODES_NONE = 0,
@@ -43,6 +43,7 @@ class Channel {
   bool isKeyProtected(void) const;
 
   bool isKeyValid(const std::string &key) const;
+
   void send(const std::string &message) const;
 
   void join(Client *client, const std::string &key);
@@ -73,13 +74,21 @@ class Channel {
 
   bool isInviteOnly(void) const;
 
+  void setLimit(unsigned int limit);
+
+  bool isFull(void) const;
+
+  unsigned int getLimit(void) const;
+
   std::string getModes(void) const;
 
   private:
+
   const std::string _name;
   const std::string _key;
   ChannelModeFlags _modes;
   const std::string _topic;
+  const unsigned int _limit;
   std::vector<Client *> _clients;
   std::vector<Client *> _operators;
   std::vector<Client *> _guests;

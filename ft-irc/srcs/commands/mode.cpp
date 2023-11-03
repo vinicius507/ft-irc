@@ -61,10 +61,19 @@ static void handleKeyMode(Channel *channel, bool isSetOp, std::string key) {
   }
 }
 
+static void handleLimitMode(Channel *channel, bool isSetOp, std::string limit) {
+  if (isSetOp) {
+    channel->setLimit(std::atoi(limit.c_str()));
+  } else {
+    channel->setLimit(0);
+  }
+}
+
 static std::map<char, void (*)(Channel *, bool, std::string)> getModeHandlersWithParam() {
   std::map<char, void (*)(Channel *, bool, std::string)> modeHandlersWithParam;
 
   modeHandlersWithParam['k'] = handleKeyMode;
+  modeHandlersWithParam['l'] = handleLimitMode;
   return (modeHandlersWithParam);
 }
 
