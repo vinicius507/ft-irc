@@ -51,9 +51,10 @@ int PollManager::poll(void) {
 
   switch (pollStatus) {
   case -1:
-    if (errno != EINTR) {
-      std::perror("poll");
+    if (errno == EINTR) {
+      return (PINTERRUPT);
     }
+    std::perror("poll");
     return (PERROR);
   case 0:
     return (PTIMEOUT);

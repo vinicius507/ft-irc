@@ -8,6 +8,7 @@ enum EPollStatus {
   PERROR = -1,
   PTIMEOUT = 0,
   PEVENTS = 1,
+  PINTERRUPT = 2,
 };
 
 class PollManager {

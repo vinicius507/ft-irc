@@ -49,6 +49,8 @@ bool Server::run(void) {
     switch (this->_pollFds.poll()) {
     case PERROR:
       return (false);
+    case PINTERRUPT:
+      return (true);
     case PTIMEOUT:
       continue;
     default:
