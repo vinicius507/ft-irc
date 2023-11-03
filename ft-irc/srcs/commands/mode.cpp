@@ -119,7 +119,7 @@ static void setMode(Channel *channel, Client *client, Message &msg) {
     }
   }
   if (!finalMode.empty()) {
-    client->send(MSG_MODE(client->getPrefix(), channel->getName(), finalMode + " " + finalModeParam));
+    channel->send(MSG_MODE(client->getPrefix(), channel->getName(), finalMode + " " + finalModeParam));
   }
 }
 
