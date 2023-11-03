@@ -10,12 +10,12 @@
 
 void operCommand(Server &server, Client *client, Message &msg) {
   if (client->getAuthState() != AuthDone) {
-    client->send(ERR_ALREADYREGISTRED(client->getNickname()));
+    client->send(ERR_NOTREGISTERED(client->getNickname()));
     return;
   }
 
   if (msg.params.size() < 2) {
-    client->send(ERR_NEEDMOREPARAMS("*", msg.command));
+    client->send(ERR_NEEDMOREPARAMS(client->getNickname(), msg.command));
     return;
   }
 
