@@ -28,6 +28,7 @@ void kickCommand(Server &server, Client *client, Message &message) {
     reason = message.params[2];
   }
   i = 0;
+  bool isOper = server.isOper(client);
   while (i < channelNames.size()) {
     channelName = channelNames[i];
     targetNickname = targetNicknames[i];
@@ -42,7 +43,7 @@ void kickCommand(Server &server, Client *client, Message &message) {
       ++i;
       continue;
     }
-    if (channel->isOperator(client) == false) {
+    if (isOper || channel->isOperator(client) == false) {
       client->send(ERR_CHANOPRIVSNEEDED(client->getNickname(), channelName));
       ++i;
       continue;

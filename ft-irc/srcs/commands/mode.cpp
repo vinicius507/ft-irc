@@ -144,6 +144,10 @@ void modeCommand(Server &server, Client *client, Message &msg) {
     client->send(RPL_CHANNELMODEIS(client->getNickname(), channel->getName(), channel->getModes()));
     return;
   }
+  if (server.isOper(client) == false && channel->isOperator(client) == false) {
+    client->send(ERR_CHANOPRIVSNEEDED(client->getNickname(), channel->getName()));
+    return;
+  }
   idx = msg.params.at(1).find_first_not_of(CHANNELMODES_CHARS + "+-");
   if (idx != std::string::npos) {
     client->send(ERR_UNKNOWNMODE(client->getNickname(), msg.params.at(1).at(idx)));

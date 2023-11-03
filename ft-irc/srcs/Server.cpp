@@ -133,6 +133,9 @@ void Server::disconnectClient(Client *client) {
     }
     ++it;
   }
+  if (this->isOper(client)) {
+    this->removeOper(client);
+  }
   this->_pollFds.removeFd(client->getFd());
   this->_clients.disconnectClient(client->getFd());
 }
@@ -228,11 +231,35 @@ bool Server::verifyOper(const std::string &name, const std::string &password) co
 
 bool Server::verifyOperHost(const std::string &host) const { return (host == OPER_HOST); }
 
-void Server::setOper(const Client *client) { this->_oper = client; }
+void Server::addOper(Client *client) {
+ if (client == NULL) {
+  return;
+ }
+ this->_operators.push_back(client);
+}
 
-bool Server::isOper(const Client *client) const {
+void Server::removeOper(Client *client) {
+  std::vector<Client *>::iterator it;
+
+  if (client == NULL) {
+    return;
+  }
+  it = std::find(this->_operators.begin(), this->_operators.end(), client);
+  if (it != this->_operators.end()) {
+    this->_operators.erase(it);
+  }
+}
+
+bool Server::isOper(Client *client) const {
+  std::vector<Client *>::const_iterator it;
+
   if (client == NULL) {
     return (false);
   }
-  return (this->_oper == client);
+  for (it = this->_operators.begin(); it != this->_operators.end(); ++it) {
+    if (*it == client) {
+      return (true);
+    }
+  }
+  return (false);
 }

@@ -33,6 +33,6 @@ void operCommand(Server &server, Client *client, Message &msg) {
     return;
   }
 
-  server.setOper(client);
+  server.addOper(client);
   client->send(RPL_YOUREOPER(client->getNickname()));
 }
