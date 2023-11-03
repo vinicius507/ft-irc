@@ -26,6 +26,10 @@ void privmsgCommand(Server &server, Client *client, Message &msg) {
       client->send(ERR_NOSUCHCHANNEL(client->getNickname(), target));
       return;
     }
+    if (channel->hasClient(client) == false) {
+      client->send(ERR_NOTONCHANNEL(client->getNickname(), channel->getName()));
+      return;
+    }
     channel->sendToVisible(client, MSG_PRIVMSG(client->getPrefix(), target, msg.trailingParam));
     return;
   }
