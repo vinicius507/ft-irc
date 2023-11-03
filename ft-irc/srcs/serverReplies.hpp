@@ -21,7 +21,7 @@
   numericReply("001", target, ":Welcome to the 42 IRC " + target + "!" + user + "@" + host)
 #define RPL_YOURHOST(target) numericReply("002", target, ":Your host is ft-irc, running version 1.0")
 #define RPL_CREATED(target) numericReply("003", target, ":This server was created sometime ago")
-#define RPL_MYINFO(target) numericReply("004", target, "ft-irc 1.0 o o")
+#define RPL_MYINFO(target) numericReply("004", target, "ft-irc 1.0 o oitkl")
 #define RPL_NOTOPIC(target, channel) numericReply("331", target, channel + " :No topic is set")
 #define RPL_TOPIC(target, channel, topic) numericReply("332", target, channel + " :" + topic)
 #define RPL_NAMREPLY(target, channel, nicknames) numericReply("353", target, "= " + channel + " :" + nicknames)
