@@ -16,5 +16,6 @@ stdenv.mkDerivation {
   meta = with lib; {
     description = "A simple IRC Server written in C++ (aka WhatsApp 2).";
     license = licenses.agpl3Only;
+    mainProgram = "ircserv";
   };
 }
