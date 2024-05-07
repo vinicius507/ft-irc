@@ -1,16 +1,11 @@
 {
   inputs = {
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/*.tar.gz";
-    ft-nix = {
-      url = "github:vinicius507/42-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nixpkgs.url = "nixpkgs";
   };
 
   outputs = {
     self,
     nixpkgs,
-    ft-nix,
   }: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {
@@ -37,6 +32,11 @@
     };
     overlays = {
       default = self.overlays.ircserv;
+      devshell = final: prev: {
+        mkShell = prev.mkShell.override {
+          inherit (final.llvmPackages_12) stdenv;
+        };
+      };
       ircserv = final: _: {
         ircserv = self.packages.${final.system}.ircserv;
       };
@@ -44,7 +44,7 @@
         minunit = self.packages.${final.system}.minunit;
       };
     };
-    devShells.${system}.default = ft-nix.lib.mkShell {
+    devShells.${system}.default = pkgs.mkShell {
       packages = with pkgs; [
         bear
         clang-tools_12
